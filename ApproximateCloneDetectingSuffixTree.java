@@ -138,8 +138,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 				}
 			}
 			if (length >= minLength && numReported != 1) {
-                System.err.println("Report clone");
-				//reportClone(i, i + length, node, length, length);
+				reportClone(i, i + length, node, length, length);
 			}
 		}
 	}
@@ -261,8 +260,8 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		// report if real clone
 		if (iBest > 0 && jBest > 0) {
 			numReported += 1;
-			//reportClone(wordStart, wordPosition + iBest, node, jBest,
-					//nodeWordLength + jBest);
+			reportClone(wordStart, wordPosition + iBest, node, jBest,
+					nodeWordLength + jBest);
 		}
 
 		return numReported > 0;
@@ -334,6 +333,69 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		--currentLength;
 		return currentLength;
 	}
+
+	private void reportClone(int wordBegin, int wordEnd, int currentNode,
+			int nodeWordPos, int nodeWordLength) throws ConQATException {
+		int length = wordEnd - wordBegin;
+		if (length < minLength || nodeWordLength < minLength) {
+			return;
+		}
+
+		PairList<Integer, Integer> otherClones = new PairList<Integer, Integer>();
+		findRemainingClones(otherClones, nodeWordLength, currentNode,
+				nodeWordEnd[currentNode] - nodeWordBegin[currentNode]
+				- nodeWordPos, wordBegin);
+
+		int occurrences = 1 + otherClones.size();
+
+		// check whether we may start from here
+		CloneInfo newInfo = new CloneInfo(length, occurrences);
+		for (int index = Math.max(0, wordBegin - INDEX_SPREAD + 1); index <= wordBegin; ++index) {
+			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
+			if (existingClones != null) {
+				for (CloneInfo cloneInfo : existingClones) {
+					if (cloneInfo.dominates(newInfo, wordBegin - index)) {
+						// we already have a dominating clone, so ignore
+						return;
+					}
+				}
+			}
+		}
+
+		// report clone
+		//consumer.startCloneClass(length);
+		//consumer.addClone(wordBegin, length);
+		for (int i = wordBegin; i < length; i++) {
+			System.err.print(word.get(i));
+		}
+        System.err.println("");
+
+		for (int clone = 0; clone < otherClones.size(); ++clone) {
+			int start = otherClones.getFirst(clone);
+			int otherLength = otherClones.getSecond(clone);
+			//consumer.addClone(start, otherLength);
+		}
+
+		// is this clone actually relevant?
+		//if (!consumer.completeCloneClass()) {
+			//return;
+		//}
+
+		// add clone to otherClones to avoid getting more duplicates
+		for (int i = wordBegin; i < wordEnd; i += INDEX_SPREAD) {
+			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin),
+						occurrences));
+		}
+		for (int clone = 0; clone < otherClones.size(); ++clone) {
+			int start = otherClones.getFirst(clone);
+			int otherLength = otherClones.getSecond(clone);
+			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
+				cloneInfos.add(start + i, new CloneInfo(otherLength - i,
+							occurrences));
+			}
+		}
+	}
+
 
 	/**
 	 * Fills the edit distance buffer at position (i,j).
