@@ -14,9 +14,7 @@ foreach($tokens as $token) {
             'line' => $token[2],
             'content' => $token[1]
         ];
-    } else {
-        $json[] = $token;
-    }
+    } 
 }
 echo json_encode($json);
 
