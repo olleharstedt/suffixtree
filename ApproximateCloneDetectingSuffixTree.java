@@ -16,6 +16,9 @@
 +-------------------------------------------------------------------------*/
 
 import java.util.List;
+import java.io.*;
+import java.nio.charset.*;
+import java.nio.file.*;
 
 /**
  * An extension of the suffix tree adding an algorithm for finding approximate
@@ -81,8 +84,10 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		}
 	}
 
-    public static void main(String[] args) throws ConQATException {
-        String input = "bla bla bla asd asd qwe qwe qwe bla bla bla qweqweqweqwe";
+    public static void main(String[] args) throws ConQATException, IOException {
+        //String input = Files.readString(Paths.get("QuestionTheme.php"), StandardCharsets.US_ASCII);
+        //input.replaceAll("\\s+","");
+        String input = "bla bla bla test bla bla bla bla bla mooooo something else";
         List<Character> word = SuffixTreeTest.stringToList(input);
         System.err.println("Word size = " + word.size());
 
@@ -100,8 +105,9 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
             }
         };
         //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
-        stree.findClones(1, 1, 1);
-        System.err.println("Hello");
+
+        stree.findClones(5, 1, 5);
+        System.err.println("");
     }
 
 	/**
@@ -368,7 +374,6 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		for (int i = wordBegin; i < length; i++) {
 			System.err.print(word.get(i));
 		}
-        System.err.println("");
 
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
@@ -394,6 +399,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 							occurrences));
 			}
 		}
+
 	}
 
 
