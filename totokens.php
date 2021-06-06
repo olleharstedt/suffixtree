@@ -2,16 +2,23 @@
 
 $content = file_get_contents("QuestionTheme.php");
 $tokens = token_get_all($content);
+$json = [];
 foreach($tokens as $token) {
     if (is_array($token)) {
         if (token_name($token[0]) === "T_WHITESPACE") {
             continue;
         }
-        echo token_name($token[0]) . " ";
+        $json[] = [
+            'token_code' => $token[0],
+            'token_name' => token_name($token[0]),
+            'line' => $token[2],
+            'content' => $token[1]
+        ];
     } else {
-        echo $token . " ";
+        $json[] = $token;
     }
 }
+echo json_encode($json);
 
 //echo "\n";
 //echo "\n";
