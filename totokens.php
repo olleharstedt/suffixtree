@@ -3,9 +3,22 @@
 $content = file_get_contents("QuestionTheme.php");
 $tokens = token_get_all($content);
 $json = [];
+
+// Copied from phpcpd
+$tokensIgnoreList = [
+    T_INLINE_HTML        => true,
+    T_COMMENT            => true,
+    T_DOC_COMMENT        => true,
+    T_OPEN_TAG           => true,
+    T_OPEN_TAG_WITH_ECHO => true,
+    T_CLOSE_TAG          => true,
+    T_WHITESPACE         => true,
+    T_USE                => true,
+    T_NS_SEPARATOR       => true,
+];
 foreach($tokens as $token) {
     if (is_array($token)) {
-        if (token_name($token[0]) === "T_WHITESPACE") {
+        if (isset($tokensIgnoreList[$token[0]])) {
             continue;
         }
         $json[] = [
