@@ -19,6 +19,7 @@ import java.util.List;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 
 /**
  * An extension of the suffix tree adding an algorithm for finding approximate
@@ -87,15 +88,27 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
     public static void main(String[] args) throws ConQATException, IOException {
         //String input = Files.readString(Paths.get("QuestionTheme.php"), StandardCharsets.US_ASCII);
         //input.replaceAll("\\s+","");
-        String input = "bla bla bla test bla bla bla bla bla mooooo something else";
-        List<Character> word = SuffixTreeTest.stringToList(input);
+        //String input = "bla bla bla test bla bla bla bla bla mooooo something else";
+        //List<Character> word = SuffixTreeTest.stringToList(input);
+        List<PhpToken> word = new ArrayList<PhpToken>();
+        PhpToken t = new PhpToken(1, "T_TEST", 1, "N/A");
+        word.add(t);
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+        word.add(new Sentinel(0, "_", 0, "_"));
         System.err.println("Word size = " + word.size());
 
 		ApproximateCloneDetectingSuffixTree stree = new ApproximateCloneDetectingSuffixTree(
                 word) {
             @Override
             protected boolean mayNotMatch(Object character) {
-                return character instanceof SuffixTree.Sentinel;
+                return character instanceof Sentinel;
             }
 
             @Override

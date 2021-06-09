@@ -351,27 +351,25 @@ public class SuffixTree {
 	 * it to the suffix tree. For the sentinel equality and object identity are
 	 * the same!
 	 */
+    /*
 	public static class Sentinel {
 
-		/** The hash value used. */
 		private final int hash = (int) (Math.random() * Integer.MAX_VALUE);
 
-		/** {@inheritDoc} */
 		@Override
 		public int hashCode() {
 			return hash;
 		}
 
-		/** {@inheritDoc} */
 		@Override
 		public boolean equals(Object obj) {
 			return obj == this;
 		}
 
-		/** {@inheritDoc} */
 		@Override
 		public String toString() {
 			return "$";
 		}
 	}
+    */
 }
