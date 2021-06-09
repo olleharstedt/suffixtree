@@ -20,6 +20,9 @@ import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Scanner;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * An extension of the suffix tree adding an algorithm for finding approximate
@@ -28,6 +31,14 @@ import java.util.ArrayList;
  * @author $Author: hummelb $
  * @version $Revision: 43151 $
  * @ConQAT.Rating GREEN Hash: BB94CD690760BC239F04D32D5BCAC33E
+ *
+ * Compile with
+ *   javac -cp .:json-20140107.jar ApproximateCloneDetectingSuffixTree.java
+ *
+ * Run with
+ *   java -cp .:json-20140107.jar ApproximateCloneDetectingSuffixTree
+ *
+ * (-cp = class path)
  */
 public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
@@ -90,18 +101,25 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         //input.replaceAll("\\s+","");
         //String input = "bla bla bla test bla bla bla bla bla mooooo something else";
         //List<Character> word = SuffixTreeTest.stringToList(input);
+
         List<PhpToken> word = new ArrayList<PhpToken>();
-        PhpToken t = new PhpToken(1, "T_TEST", 1, "N/A");
-        word.add(t);
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
-        word.add(new PhpToken(1, "T_TEST", 1, "N/A"));
+
+        String filename = "tokens.json";
+        String content = new Scanner(new File(filename)).useDelimiter("\\Z").next();
+        JSONArray json = new JSONArray(content);
+        for(int n = 0; n < json.length(); n++)
+        {
+            JSONObject object = (JSONObject) json.get(n);
+            PhpToken t = new PhpToken(
+                (int) object.get("token_code"),
+                (String) object.get("token_name"),
+                (int) object.get("line"),
+                (String) object.get("content")
+            );
+            word.add(t);
+        }
         word.add(new Sentinel(0, "_", 0, "_"));
+
         System.err.println("Word size = " + word.size());
 
 		ApproximateCloneDetectingSuffixTree stree = new ApproximateCloneDetectingSuffixTree(
@@ -119,8 +137,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         };
         //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
 
-        stree.findClones(5, 1, 5);
-        System.err.println("");
+        stree.findClones(25, 1, 10);
     }
 
 	/**
@@ -384,9 +401,11 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		// report clone
 		//consumer.startCloneClass(length);
 		//consumer.addClone(wordBegin, length);
-		for (int i = wordBegin; i < length; i++) {
-			System.err.print(word.get(i));
-		}
+		//for (int i = wordBegin; i < length; i++) {
+			//System.err.print(word.get(i) + " ");
+		//}
+        //PhpToken t = (PhpToken) word.get(wordBegin);
+        //System.err.println("line = " + t.line + ", length = " + length);
 
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
@@ -407,12 +426,18 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
 			int otherLength = otherClones.getSecond(clone);
+            PhpToken s = (PhpToken) word.get(start);
+            System.err.print("start t.line = " + s.line + " ");
+            for (int j = 0; j < otherLength; j++) {
+                PhpToken r = (PhpToken) word.get(j + start);
+                System.err.print(r.content + " " );
+            }
 			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
 				cloneInfos.add(start + i, new CloneInfo(otherLength - i,
 							occurrences));
 			}
 		}
-
+        System.err.println("");
 	}
 
 
