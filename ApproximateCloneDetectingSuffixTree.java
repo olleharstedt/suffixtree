@@ -32,6 +32,9 @@ import org.json.JSONArray;
  * @version $Revision: 43151 $
  * @ConQAT.Rating GREEN Hash: BB94CD690760BC239F04D32D5BCAC33E
  *
+ * JARs needed:
+ *   https://mvnrepository.com/artifact/org.json/json/20140107
+ *
  * Compile with
  *   javac -cp .:json-20140107.jar ApproximateCloneDetectingSuffixTree.java
  *
