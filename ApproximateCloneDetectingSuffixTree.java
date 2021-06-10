@@ -433,6 +433,8 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin),
 						occurrences));
 		}
+        PhpToken t = (PhpToken) word.get(wordBegin);
+        System.out.print("line = " + t.line + ", length = " + length + "; ");
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
 			int otherLength = otherClones.getSecond(clone);
