@@ -123,7 +123,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         }
         word.add(new Sentinel(0, "_", 0, "_"));
 
-        System.err.println("Word size = " + word.size());
+        System.out.println("Word size = " + word.size());
 
 		ApproximateCloneDetectingSuffixTree stree = new ApproximateCloneDetectingSuffixTree(
                 word) {
@@ -134,25 +134,21 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
             @Override
             protected void reportBufferShortage(int leafStart, int leafLength) {
-                System.err.println("Encountered buffer shortage: " + leafStart
+                System.out.println("Encountered buffer shortage: " + leafStart
                         + " " + leafLength);
             }
         };
         //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
 
-        stree.findClones(25, 1, 10);
+        stree.findClones(10, 10, 10);
     }
 
 	/**
 	 * Finds all clones in the string (List) used in the constructor.
 	 * 
-	 * @param minLength
-	 *            the minimal length of a clone
-	 * @param maxErrors
-	 *            the maximal number of errors/gaps allowed
-	 * @param headEquality
-	 *            the number of elements which have to be the same at the
-	 *            beginning of a clone
+	 * @param minLength the minimal length of a clone
+	 * @param maxErrors the maximal number of errors/gaps allowed
+	 * @param headEquality the number of elements which have to be the same at the beginning of a clone
 	 */
 	public void findClones(int minLength, int maxErrors, int headEquality) throws ConQATException {
 		this.minLength = minLength;
@@ -180,6 +176,17 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 				reportClone(i, i + length, node, length, length);
 			}
 		}
+
+        /*
+		for (int index = 0; index <= word.size(); ++index) {
+			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
+			if (existingClones != null) {
+				for (CloneInfo ci : existingClones) {
+                    System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
+				}
+			}
+		}
+        */
 	}
 
 	/**
@@ -405,10 +412,10 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		//consumer.startCloneClass(length);
 		//consumer.addClone(wordBegin, length);
 		//for (int i = wordBegin; i < length; i++) {
-			//System.err.print(word.get(i) + " ");
+			//System.out.print(word.get(i) + " ");
 		//}
         //PhpToken t = (PhpToken) word.get(wordBegin);
-        //System.err.println("line = " + t.line + ", length = " + length);
+        //System.out.println("line = " + t.line + ", length = " + length);
 
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
@@ -430,17 +437,17 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			int start = otherClones.getFirst(clone);
 			int otherLength = otherClones.getSecond(clone);
             PhpToken s = (PhpToken) word.get(start);
-            System.err.print("start t.line = " + s.line + " ");
+            System.out.print("start t.line = " + s.line + ", otherlength =  " + otherLength + " ");
             for (int j = 0; j < otherLength; j++) {
                 PhpToken r = (PhpToken) word.get(j + start);
-                System.err.print(r.content + " " );
+                System.out.print(r.content + " " );
             }
 			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
 				cloneInfos.add(start + i, new CloneInfo(otherLength - i,
 							occurrences));
 			}
 		}
-        System.err.println("");
+        System.out.println("");
 	}
 
 

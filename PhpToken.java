@@ -20,13 +20,14 @@ class PhpToken {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return tokenCode;
+        return content.hashCode();
+        //return tokenCode;
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object token) {
-        return ((PhpToken) token).tokenCode == tokenCode;
+        return ((PhpToken) token).hashCode() == this.hashCode();
     }
 
     /** {@inheritDoc} */
