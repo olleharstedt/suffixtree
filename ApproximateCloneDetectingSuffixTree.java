@@ -215,6 +215,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         //   - /home/olle/kod/suffixtree/em_manager_helper.php:120-327 (207 lines)
         //     /home/olle/kod/suffixtree/em_manager_helper.php:204-411
 
+        // TODO: Sort set
         Set set = map.entrySet();
         Iterator itr = set.iterator();
         while(itr.hasNext()) {
