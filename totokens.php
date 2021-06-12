@@ -1,6 +1,7 @@
 <?php
 
-$content = file_get_contents("QuestionTheme.php");
+$file = "TokenDynamic.php";
+$content = file_get_contents($file);
 $tokens = token_get_all($content);
 $json = [];
 
@@ -25,7 +26,8 @@ foreach($tokens as $token) {
             'token_code' => $token[0],
             'token_name' => token_name($token[0]),
             'line' => $token[2],
-            'content' => $token[1]
+            'content' => $token[1],
+            'file' => $file
         ];
     } 
 }

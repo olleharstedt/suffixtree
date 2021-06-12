@@ -7,14 +7,16 @@ class Sentinel extends PhpToken {
         int tokenCode,
         String tokenName,
         int line,
+        String file,
         String content
     ) {
-        super(tokenCode, tokenName, line, content);
+        super(tokenCode, tokenName, line, file, content);
 
         this.tokenCode = 0;
         this.tokenName = "sentinel";
         this.line = 0;
         this.content = "sentinel";
+        this.file = "no_file";
     }
 
     /** {@inheritDoc} */

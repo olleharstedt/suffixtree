@@ -118,11 +118,12 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                 (int) object.get("token_code"),
                 (String) object.get("token_name"),
                 (int) object.get("line"),
+                (String) object.get("file"),
                 (String) object.get("content")
             );
             word.add(t);
         }
-        word.add(new Sentinel(0, "_", 0, "_"));
+        word.add(new Sentinel(0, "_", 0, "_", "_"));
 
         System.out.println("Word size = " + word.size());
 
@@ -178,14 +179,18 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			}
 		}
 
-            //if (existingClones == null) {
-            //} else {
-                //existingClones.sort((CloneInfo a, CloneInfo b) -> a.length - b.length);
-            //}
-
         List<Integer> lengths = new ArrayList<Integer>();
         Map<Integer, CloneInfo> map = new HashMap<>();
+        Comparator<CloneInfo> comp = new Comparator<CloneInfo>() {
+            @Override
+            public int compare(CloneInfo c, CloneInfo d) {
+                //return d.token.line - c.token.line;
+                return d.length - c.length;
+            }
+        };
+        TreeSet<CloneInfo> tree = new TreeSet<CloneInfo>(comp);
 
+        List<CloneInfo> allClones = new ArrayList<CloneInfo>();
 		for (int index = 0; index <= word.size(); ++index) {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
@@ -193,43 +198,76 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                     // length = number of tokens
                     // TODO: min token length
                     if (ci.length > 25) {
+                        //allClones.add(ci);
                         //lengths.add(ci.length);
-                        map.put(ci.length, ci);
-                        System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
-                        System.out.println("line = " + ci.token.line);
+                        //tree.add(ci);
+                        CloneInfo previousCi = map.get(ci.token.line);
+                        if (previousCi == null) {
+                            map.put(ci.token.line, ci);
+                        } else if (ci.length > previousCi.length) {
+                            map.put(ci.token.line, ci);
+                        }
+                        //System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
+                        //System.out.println("line = " + ci.token.line);
                         List<Integer> others = ci.otherClones.extractFirstList();
                         for (int j = 0; j < others.size(); j++) {
                             int otherStart = others.get(j);
                             PhpToken t = (PhpToken) word.get(otherStart);
-                            System.out.println("\tother clone start = " + t.line);
+                            //System.out.println("\tother clone start = " + t.line);
                         }
                     }
 				}
 			}
 		}
 
-        // TODO: output like phpcpd, order by line length
+        if (allClones == null) {
+        } else {
+            //allClones.sort((CloneInfo a, CloneInfo b) -> a.length - b.length);
+            allClones.sort((CloneInfo a, CloneInfo b) -> a.token.line - b.token.line);
+        }
+
+        Iterator<CloneInfo> itr2 = allClones.iterator();
+        while (itr2.hasNext()) {
+            CloneInfo ci = itr2.next();
+            System.out.println(ci.token.line);
+        }
+
+        //Iterator<CloneInfo> itr2 = tree.iterator();
+        //while (itr2.hasNext()) {
+            //CloneInfo ci = itr2.next();
+            //System.out.println(ci.length);
+        //}
+
+        // TODO: output like phpcpd, order by line (or token?) length
         //
-        // Found 135 clones with 2136 duplicated lines in 1 files:
-        //
-        //   - /home/olle/kod/suffixtree/em_manager_helper.php:120-327 (207 lines)
-        //     /home/olle/kod/suffixtree/em_manager_helper.php:204-411
+        // "Found 135 clones with 2136 duplicated lines in 1 files:"
 
         // TODO: Sort set
-        Set set = map.entrySet();
-        Iterator itr = set.iterator();
+        List<CloneInfo> list = new ArrayList<CloneInfo>(map.values());
+        Collections.sort(list, (a, b) -> b.length - a.length);
+        //Set set = map.entrySet();
+        Iterator itr = list.iterator();
+        System.out.printf(
+            "\nFound %d clones with %d duplicated lines in %d files:\n\n",
+            list.size(),
+            0,
+            0
+        );
         while(itr.hasNext()) {
-            Map.Entry entry = (Map.Entry) itr.next();  
-            CloneInfo ci = (CloneInfo) entry.getValue();
+        //for (int i = 0; i < keys.size(); i++) {
+            //Map.Entry entry = (Map.Entry) itr.next();  
+            //CloneInfo ci = (CloneInfo) entry.getValue();
+            //CloneInfo ci = (CloneInfo) map.get(keys.get(i));
+            CloneInfo ci = (CloneInfo) itr.next();
             try {
                 PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
                 int lines = lastToken.line - ci.token.line;
                 System.out.printf(
-                    "line = %d, length (tokens) = %d, length (lines) = %d, occurrences = %d\n",
+                    "  - %s:%d-%d (%d lines)\n",
+                    ci.token.file,
                     ci.token.line,
-                    ci.length,
-                    lines,
-                    ci.occurrences
+                    ci.token.line + lines - 1,
+                    lines
                 );
             } catch(IndexOutOfBoundsException e) {
                 System.out.printf("index out of bounds, ci.position = %d, ci.length = %d", ci.position, ci.length);
@@ -238,8 +276,16 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
             for (int j = 0; j < others.size(); j++) {
                 int otherStart = others.get(j);
                 PhpToken t = (PhpToken) word.get(otherStart);
-                System.out.println("\tother clone start = " + t.line);
+                PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
+                int lines = lastToken.line - ci.token.line;
+                System.out.printf(
+                        "    %s:%d-%d\n",
+                        t.file,
+                        t.line,
+                        t.line + lines - 1
+                );
             }
+            System.out.println("");
         }
 	}
 
