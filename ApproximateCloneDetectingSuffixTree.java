@@ -21,6 +21,7 @@ import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.security.*;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -177,16 +178,23 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			}
 		}
 
-        /*
 		for (int index = 0; index <= word.size(); ++index) {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
 				for (CloneInfo ci : existingClones) {
                     System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
+                    if (ci.length == 1) {
+                        System.out.println("line = " + ci.token.line);
+                        List<Integer> others = ci.otherClones.extractFirstList();
+                        for (int j = 0; j < others.size(); j++) {
+                            int otherStart = others.get(j);
+                            PhpToken t = (PhpToken) word.get(otherStart);
+                            System.out.println("\rother clone start = " + t.line);
+                        }
+                    }
 				}
 			}
 		}
-        */
 	}
 
 	/**
@@ -395,7 +403,8 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		int occurrences = 1 + otherClones.size();
 
 		// check whether we may start from here
-		CloneInfo newInfo = new CloneInfo(length, occurrences);
+        PhpToken t = (PhpToken) word.get(wordBegin);
+		CloneInfo newInfo = new CloneInfo(length, occurrences, t, otherClones);
 		for (int index = Math.max(0, wordBegin - INDEX_SPREAD + 1); index <= wordBegin; ++index) {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
@@ -430,26 +439,24 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
 		// add clone to otherClones to avoid getting more duplicates
 		for (int i = wordBegin; i < wordEnd; i += INDEX_SPREAD) {
-			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin),
-						occurrences));
+			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin), occurrences, t, otherClones));
 		}
-        PhpToken t = (PhpToken) word.get(wordBegin);
-        System.out.print("line = " + t.line + ", length = " + length + "; ");
+        //PhpToken t = (PhpToken) word.get(wordBegin);
+        //System.out.print("line = " + t.line + ", length = " + length + "; ");
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
 			int otherLength = otherClones.getSecond(clone);
-            PhpToken s = (PhpToken) word.get(start);
-            System.out.print("start t.line = " + s.line + ", otherlength =  " + otherLength + " ");
+            //PhpToken s = (PhpToken) word.get(start);
+            //System.out.print("start t.line = " + s.line + ", otherlength =  " + otherLength + " ");
             for (int j = 0; j < otherLength; j++) {
                 PhpToken r = (PhpToken) word.get(j + start);
-                System.out.print(r.content + " " );
+                //System.out.print(r.content + " " );
             }
 			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
-				cloneInfos.add(start + i, new CloneInfo(otherLength - i,
-							occurrences));
+				cloneInfos.add(start + i, new CloneInfo(otherLength - i, occurrences, t, otherClones));
 			}
 		}
-        System.out.println("");
+        //System.out.println("");
 	}
 
 
@@ -533,10 +540,16 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		/** Number of occurrences of the clone. */
 		private final int occurrences;
 
+        public final PhpToken token;
+
+        public final PairList<Integer, Integer> otherClones;
+
 		/** Constructor. */
-		public CloneInfo(int length, int occurrences) {
+		public CloneInfo(int length, int occurrences, PhpToken token, PairList<Integer, Integer> otherClones) {
 			this.length = length;
 			this.occurrences = occurrences;
+            this.token = token;
+            this.otherClones = otherClones;
 		}
 
 		/**
@@ -551,4 +564,112 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			return length - later >= ci.length && occurrences >= ci.occurrences;
 		}
 	}
+
+    /*
+	protected class CloneConsumer implements ICloneReporter {
+
+		private final MultiplexingCloneClassesCollection results = new MultiplexingCloneClassesCollection();
+
+		public CloneConsumer() {
+			if (top == INFINITE) {
+				results.addCollection(new ArrayList<CloneClass>());
+			} else {
+				results.addCollection(boundedCollection(NORMALIZED_LENGTH));
+				results.addCollection(boundedCollection(CARDINALITY));
+				results.addCollection(boundedCollection(VOLUME));
+			}
+		}
+
+		private BoundedPriorityQueue<CloneClass> boundedCollection(
+				ECloneClassComparator dimension) {
+			return new BoundedPriorityQueue<CloneClass>(top, dimension);
+		}
+
+		protected CloneClass currentCloneClass;
+
+		@Override
+		public void startCloneClass(int normalizedLength) {
+			currentCloneClass = new CloneClass(normalizedLength,
+					idProvider.provideId());
+		}
+
+		@Override
+		public Clone addClone(int globalPosition, int length)
+				throws ConQATException {
+			// compute length of clone in lines
+			Unit firstUnit = units.get(globalPosition);
+			Unit lastUnit = units.get(globalPosition + length - 1);
+			List<Unit> cloneUnits = units.subList(globalPosition,
+					globalPosition + length);
+
+			ITextElement element = resolveElement(firstUnit
+					.getElementUniformPath());
+			int startUnitIndexInElement = firstUnit.getIndexInElement();
+			int endUnitIndexInElement = lastUnit.getIndexInElement();
+			int lengthInUnits = endUnitIndexInElement - startUnitIndexInElement
+					+ 1;
+			CCSMAssert.isTrue(lengthInUnits >= 0, "Negative length in units!");
+			String fingerprint = createFingerprint(globalPosition, length);
+
+			Clone clone = new Clone(idProvider.provideId(), currentCloneClass,
+					createCloneLocation(element,
+							firstUnit.getFilteredStartOffset(),
+							lastUnit.getFilteredEndOffset()),
+					startUnitIndexInElement, lengthInUnits, fingerprint);
+
+			if (storeUnits) {
+				CloneUtils.setUnits(clone, cloneUnits);
+			}
+
+			currentCloneClass.add(clone);
+
+			return clone;
+		}
+
+		// Creates the location for a clone.
+		private TextRegionLocation createCloneLocation(ITextElement element,
+				int filteredStartOffset, int filteredEndOffset)
+				throws ConQATException {
+			int rawStartOffset = element
+					.getUnfilteredOffset(filteredStartOffset);
+			int rawEndOffset = element.getUnfilteredOffset(filteredEndOffset);
+			int rawStartLine = element
+					.convertUnfilteredOffsetToLine(rawStartOffset);
+			int rawEndLine = element
+					.convertUnfilteredOffsetToLine(rawEndOffset);
+
+			return new TextRegionLocation(element.getLocation(),
+					element.getUniformPath(), rawStartOffset, rawEndOffset,
+					rawStartLine, rawEndLine);
+		}
+
+		protected ITextElement resolveElement(String elementUniformPath) {
+			return uniformPathToElement.get(elementUniformPath);
+		}
+
+		protected String createFingerprint(int globalPosition, int length) {
+			StringBuilder fingerprintBase = new StringBuilder();
+			for (int pos = globalPosition; pos < globalPosition + length; pos++) {
+				fingerprintBase.append(units.get(pos).getContent());
+			}
+			return Digester.createMD5Digest(fingerprintBase.toString());
+		}
+
+		@Override
+		public boolean completeCloneClass() throws ConQATException {
+			boolean constraintsSatisfied = constraints
+					.allSatisfied(currentCloneClass);
+
+			if (constraintsSatisfied) {
+				results.add(currentCloneClass);
+			}
+
+			return constraintsSatisfied;
+		}
+
+		public List<CloneClass> getCloneClasses() {
+			return results.getCloneClasses();
+		}
+	}
+    */
 }

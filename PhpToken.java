@@ -1,9 +1,9 @@
 class PhpToken {
 
-    protected int tokenCode;
-    protected int line;
-    protected String tokenName;
-    protected String content;
+    public int tokenCode;
+    public int line;
+    public String tokenName;
+    public String content;
 
     public PhpToken(
         int tokenCode,
