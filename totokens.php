@@ -1,6 +1,6 @@
 <?php
 
-$content = file_get_contents("test.php");
+$content = file_get_contents("QuestionTheme.php");
 $tokens = token_get_all($content);
 $json = [];
 
