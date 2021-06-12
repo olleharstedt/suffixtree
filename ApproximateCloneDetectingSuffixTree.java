@@ -191,6 +191,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			if (existingClones != null) {
 				for (CloneInfo ci : existingClones) {
                     // length = number of tokens
+                    // TODO: min token length
                     if (ci.length > 25) {
                         //lengths.add(ci.length);
                         map.put(ci.length, ci);
@@ -206,6 +207,13 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 				}
 			}
 		}
+
+        // TODO: output like phpcpd, order by line length
+        //
+        // Found 135 clones with 2136 duplicated lines in 1 files:
+        //
+        //   - /home/olle/kod/suffixtree/em_manager_helper.php:120-327 (207 lines)
+        //     /home/olle/kod/suffixtree/em_manager_helper.php:204-411
 
         Set set = map.entrySet();
         Iterator itr = set.iterator();
@@ -232,11 +240,6 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                 System.out.println("\tother clone start = " + t.line);
             }
         }
-
-        //lengths.sort((i, j) -> i - j);
-        //for (int length : lengths) {
-            //System.out.println("length = " + length);
-        //}
 	}
 
 	/**
