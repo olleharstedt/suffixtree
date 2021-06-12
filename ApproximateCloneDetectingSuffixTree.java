@@ -15,7 +15,7 @@
 | limitations under the License.                                           |
 +-------------------------------------------------------------------------*/
 
-import java.util.List;
+import java.util.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -178,24 +178,55 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			}
 		}
 
+            //if (existingClones == null) {
+            //} else {
+                //existingClones.sort((CloneInfo a, CloneInfo b) -> a.length - b.length);
+            //}
+
+        List<Integer> lengths = new ArrayList<Integer>();
+        Map<Integer, CloneInfo> map = new HashMap<>();
+
 		for (int index = 0; index <= word.size(); ++index) {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
 				for (CloneInfo ci : existingClones) {
                     // length = number of tokens
-                    if (ci.length > 25 && ci.length < 50) {
+                    if (ci.length > 25) {
+                        //lengths.add(ci.length);
+                        map.put(ci.length, ci);
                         System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
                         System.out.println("line = " + ci.token.line);
                         List<Integer> others = ci.otherClones.extractFirstList();
                         for (int j = 0; j < others.size(); j++) {
                             int otherStart = others.get(j);
                             PhpToken t = (PhpToken) word.get(otherStart);
-                            System.out.println("\rother clone start = " + t.line);
+                            System.out.println("\tother clone start = " + t.line);
                         }
                     }
 				}
 			}
 		}
+
+        Set set = map.entrySet();
+        Iterator itr = set.iterator();
+        while(itr.hasNext()) {
+            Map.Entry entry = (Map.Entry) itr.next();  
+            CloneInfo ci = (CloneInfo) entry.getValue(); PhpToken firstToken = ci.token;
+            //PhpToken lastToken = word.get(
+            System.out.println("line = " + ci.token.line + ", length = " + ci.length + ", occurrences = " + ci.occurrences);
+
+            List<Integer> others = ci.otherClones.extractFirstList();
+            for (int j = 0; j < others.size(); j++) {
+                int otherStart = others.get(j);
+                PhpToken t = (PhpToken) word.get(otherStart);
+                System.out.println("\tother clone start = " + t.line);
+            }
+        }
+
+        //lengths.sort((i, j) -> i - j);
+        //for (int length : lengths) {
+            //System.out.println("length = " + length);
+        //}
 	}
 
 	/**
@@ -535,7 +566,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	/** Stores information on a clone. */
 	private static class CloneInfo {
 
-		/** Length of the clone. */
+		/** Length of the clone in tokens. */
 		private final int length;
 
 		/** Number of occurrences of the clone. */
@@ -543,6 +574,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
         public final PhpToken token;
 
+        /** Related clones */
         public final PairList<Integer, Integer> otherClones;
 
 		/** Constructor. */
