@@ -182,8 +182,9 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
 				for (CloneInfo ci : existingClones) {
-                    System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
-                    if (ci.length == 1) {
+                    // length = number of tokens
+                    if (ci.length > 25 && ci.length < 50) {
+                        System.out.println("length = " + ci.length + ", occurrences = " + ci.occurrences);
                         System.out.println("line = " + ci.token.line);
                         List<Integer> others = ci.otherClones.extractFirstList();
                         for (int j = 0; j < others.size(); j++) {
