@@ -141,7 +141,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         };
         //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
 
-        stree.findClones(10, 10, 10);
+        stree.findClones(10, 5, 10);
     }
 
 	/**
@@ -213,9 +213,15 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
             Map.Entry entry = (Map.Entry) itr.next();  
             CloneInfo ci = (CloneInfo) entry.getValue();
             try {
-                PhpToken firstToken = ci.token;
                 PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
-                System.out.println("line = " + ci.token.line + ", length = " + ci.length + ", occurrences = " + ci.occurrences);
+                int lines = lastToken.line - ci.token.line;
+                System.out.printf(
+                    "line = %d, length (tokens) = %d, length (lines) = %d, occurrences = %d\n",
+                    ci.token.line,
+                    ci.length,
+                    lines,
+                    ci.occurrences
+                );
             } catch(IndexOutOfBoundsException e) {
                 System.out.printf("index out of bounds, ci.position = %d, ci.length = %d", ci.position, ci.length);
             }
