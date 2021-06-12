@@ -1,6 +1,7 @@
 <?php
 
 $file = "TokenDynamic.php";
+//$file = "em_manager_helper.php";
 $content = file_get_contents($file);
 $tokens = token_get_all($content);
 $json = [];

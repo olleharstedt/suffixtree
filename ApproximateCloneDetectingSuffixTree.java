@@ -100,6 +100,12 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		}
 	}
 
+    /**
+     * TODO: Add options:
+     *   --min-tokens
+     *   --min-lines
+     *   --edit-distance
+     */
     public static void main(String[] args) throws ConQATException, IOException {
         //String input = Files.readString(Paths.get("QuestionTheme.php"), StandardCharsets.US_ASCII);
         //input.replaceAll("\\s+","");
@@ -125,7 +131,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         }
         word.add(new Sentinel(0, "_", 0, "_", "_"));
 
-        System.out.println("Word size = " + word.size());
+        //System.out.println("Word size = " + word.size());
 
 		ApproximateCloneDetectingSuffixTree stree = new ApproximateCloneDetectingSuffixTree(
                 word) {
@@ -142,13 +148,13 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         };
         //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
 
-        stree.findClones(10, 5, 10);
+        stree.findClones(10, 10, 10);
     }
 
 	/**
 	 * Finds all clones in the string (List) used in the constructor.
 	 * 
-	 * @param minLength the minimal length of a clone
+	 * @param minLength the minimal length of a clone in tokens (not lines)
 	 * @param maxErrors the maximal number of errors/gaps allowed
 	 * @param headEquality the number of elements which have to be the same at the beginning of a clone
 	 */
@@ -197,7 +203,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 				for (CloneInfo ci : existingClones) {
                     // length = number of tokens
                     // TODO: min token length
-                    if (ci.length > 25) {
+                    if (ci.length > 50) {
                         //allClones.add(ci);
                         //lengths.add(ci.length);
                         //tree.add(ci);
@@ -220,17 +226,17 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 			}
 		}
 
-        if (allClones == null) {
-        } else {
+        //if (allClones == null) {
+        //} else {
             //allClones.sort((CloneInfo a, CloneInfo b) -> a.length - b.length);
-            allClones.sort((CloneInfo a, CloneInfo b) -> a.token.line - b.token.line);
-        }
+            //allClones.sort((CloneInfo a, CloneInfo b) -> a.token.line - b.token.line);
+        //}
 
-        Iterator<CloneInfo> itr2 = allClones.iterator();
-        while (itr2.hasNext()) {
-            CloneInfo ci = itr2.next();
-            System.out.println(ci.token.line);
-        }
+        //Iterator<CloneInfo> itr2 = allClones.iterator();
+        //while (itr2.hasNext()) {
+            //CloneInfo ci = itr2.next();
+            //System.out.println(ci.token.line);
+        //}
 
         //Iterator<CloneInfo> itr2 = tree.iterator();
         //while (itr2.hasNext()) {
@@ -238,11 +244,6 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
             //System.out.println(ci.length);
         //}
 
-        // TODO: output like phpcpd, order by line (or token?) length
-        //
-        // "Found 135 clones with 2136 duplicated lines in 1 files:"
-
-        // TODO: Sort set
         List<CloneInfo> list = new ArrayList<CloneInfo>(map.values());
         Collections.sort(list, (a, b) -> b.length - a.length);
         //Set set = map.entrySet();
@@ -250,9 +251,10 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         System.out.printf(
             "\nFound %d clones with %d duplicated lines in %d files:\n\n",
             list.size(),
-            0,
+            0,  // TODO: Fix
             0
         );
+        // TODO: Filter overlapping clones.
         while(itr.hasNext()) {
         //for (int i = 0; i < keys.size(); i++) {
             //Map.Entry entry = (Map.Entry) itr.next();  
