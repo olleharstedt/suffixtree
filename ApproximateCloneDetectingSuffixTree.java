@@ -211,10 +211,14 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         Iterator itr = set.iterator();
         while(itr.hasNext()) {
             Map.Entry entry = (Map.Entry) itr.next();  
-            CloneInfo ci = (CloneInfo) entry.getValue(); PhpToken firstToken = ci.token;
-            //PhpToken lastToken = word.get(
-            System.out.println("line = " + ci.token.line + ", length = " + ci.length + ", occurrences = " + ci.occurrences);
-
+            CloneInfo ci = (CloneInfo) entry.getValue();
+            try {
+                PhpToken firstToken = ci.token;
+                PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
+                System.out.println("line = " + ci.token.line + ", length = " + ci.length + ", occurrences = " + ci.occurrences);
+            } catch(IndexOutOfBoundsException e) {
+                System.out.printf("index out of bounds, ci.position = %d, ci.length = %d", ci.position, ci.length);
+            }
             List<Integer> others = ci.otherClones.extractFirstList();
             for (int j = 0; j < others.size(); j++) {
                 int otherStart = others.get(j);
@@ -436,7 +440,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
 		// check whether we may start from here
         PhpToken t = (PhpToken) word.get(wordBegin);
-		CloneInfo newInfo = new CloneInfo(length, occurrences, t, otherClones);
+		CloneInfo newInfo = new CloneInfo(length, wordBegin, occurrences, t, otherClones);
 		for (int index = Math.max(0, wordBegin - INDEX_SPREAD + 1); index <= wordBegin; ++index) {
 			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
 			if (existingClones != null) {
@@ -471,7 +475,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
 		// add clone to otherClones to avoid getting more duplicates
 		for (int i = wordBegin; i < wordEnd; i += INDEX_SPREAD) {
-			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin), occurrences, t, otherClones));
+			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin), wordBegin, occurrences, t, otherClones));
 		}
         //PhpToken t = (PhpToken) word.get(wordBegin);
         //System.out.print("line = " + t.line + ", length = " + length + "; ");
@@ -485,7 +489,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                 //System.out.print(r.content + " " );
             }
 			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
-				cloneInfos.add(start + i, new CloneInfo(otherLength - i, occurrences, t, otherClones));
+				cloneInfos.add(start + i, new CloneInfo(otherLength - i, wordBegin, occurrences, t, otherClones));
 			}
 		}
         //System.out.println("");
@@ -518,16 +522,11 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	 * Fills a list of pairs giving the start positions and lengths of the
 	 * remaining clones.
 	 * 
-	 * @param clonePositions
-	 *            the clone positions being filled (start position and length)
-	 * @param nodeWordLength
-	 *            the length of the word along the nodes.
-	 * @param currentNode
-	 *            the node we are currently at.
-	 * @param distance
-	 *            the distance along the word leading to the current node.
-	 * @param wordStart
-	 *            the start of the currently searched word.
+	 * @param clonePositions the clone positions being filled (start position and length)
+	 * @param nodeWordLength the length of the word along the nodes.
+	 * @param currentNode the node we are currently at.
+	 * @param distance the distance along the word leading to the current node.
+	 * @param wordStart the start of the currently searched word.
 	 */
 	private void findRemainingClones(PairList<Integer, Integer> clonePositions,
 			int nodeWordLength, int currentNode, int distance, int wordStart) {
@@ -569,6 +568,9 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		/** Length of the clone in tokens. */
 		private final int length;
 
+        /** Position in word list */
+        public final int position;
+
 		/** Number of occurrences of the clone. */
 		private final int occurrences;
 
@@ -578,8 +580,9 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         public final PairList<Integer, Integer> otherClones;
 
 		/** Constructor. */
-		public CloneInfo(int length, int occurrences, PhpToken token, PairList<Integer, Integer> otherClones) {
+		public CloneInfo(int length, int position, int occurrences, PhpToken token, PairList<Integer, Integer> otherClones) {
 			this.length = length;
+			this.position = position;
 			this.occurrences = occurrences;
             this.token = token;
             this.otherClones = otherClones;
