@@ -98,9 +98,9 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         $this->edBuffer = array_fill(0, $this->MAX_LENGTH, $arr);
 
         parent::__construct($word);
-		//$this->ensureChildLists();
-		//$this->leafCount = array_fill(0, $this->numNodes, 0);
-		//$this->initLeafCount(0);
+		$this->ensureChildLists();
+		$this->leafCount = array_fill(0, $this->numNodes, 0);
+		$this->initLeafCount(0);
 	}
 
 	/**

@@ -232,7 +232,6 @@ class SuffixTree
 	 */
     private function testAndSplit(int $refWordEnd, JavaObjectInterface $nextCharacter)
     {
-        echo 'testAndSplit';
 		if ($this->currentNode < 0) {
 			// trap state is always end state
 			return true;
@@ -243,7 +242,6 @@ class SuffixTree
 				$this->explicitNode = $this->currentNode;
 				return false;
 			}
-            echo 'testAndSplit';
 			return true;
 		}
 

@@ -89,7 +89,7 @@ class SuffixTreeHashTable
 		$this->tableSize = $this->allowedSizes[$sizeIndex];
 
 		$this->keyNodes = array_fill(0, $this->tableSize, 0);
-		$this->keyChars = array_fill(0, $this->tableSize, new JavaObject());
+		$this->keyChars = array_fill(0, $this->tableSize, null);
 		$this->resultNodes = array_fill(0, $this->tableSize, 0);
 	}
 
@@ -104,17 +104,18 @@ class SuffixTreeHashTable
     private function hashFind(int $keyNode, JavaObjectInterface $keyChar)
     {
 		++$this->_numFind;
+        /** @var int */
 		$hash = $keyChar->hashCode();
+        /** @var int */
 		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
+        /** @var int */
 		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] !== null) {
-            var_dump($this->keyChars[$pos]);
 			if ($this->keyNodes[$pos] === $keyNode && $keyChar->equals($this->keyChars[$pos])) {
 				break;
 			}
 			++$this->_numColl;
 			$pos = ($pos + $secondary) % $this->tableSize;
-            var_dump($pos);
 		}
 		return $pos;
 	}
