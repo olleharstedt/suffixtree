@@ -554,7 +554,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		$newInfo = new CloneInfo($length, $wordBegin, $occurrences, $t, $otherClones);
 		for ($index = max(0, $wordBegin - $this->INDEX_SPREAD + 1); $index <= $wordBegin; ++$index) {
             /** @var CloneInfo */
-			$existingClones = $this->cloneInfos.getCollection($index);
+			$existingClones = $this->cloneInfos[$index] ?? null;
 			if ($existingClones != null) {
 				//for (CloneInfo cloneInfo : $existingClones) {
                 foreach ($existingClones as $cloneInfo) {
@@ -576,8 +576,9 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         //System.out.println("line = " + t.line + ", $length = " + $length);
 
 		for ($clone = 0; $clone < count($otherClones); ++$clone) {
-			$start = $otherClones.getFirst($clone);
-			$otherLength = $otherClones.getSecond($clone);
+			$start = $otherClones->getFirst($clone);
+			$otherLength = $otherClones->getSecond($clone);
+
 			//consumer.addClone($start, $otherLength);
 		}
 
