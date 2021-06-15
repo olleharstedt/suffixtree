@@ -20,39 +20,45 @@
 /** Stores information on a clone. */
 class CloneInfo {
 
-    /** Length of the clone in tokens. */
-    private final int length;
+    /** Length of the clone in tokens.
+        * @var int */
+    private $length;
 
-    /** Position in word list */
-    public final int position;
+    /** Position in word list
+        * @var int */
+    public $position;
 
-    /** Number of occurrences of the clone. */
-    private final int occurrences;
+    /** Number of occurrences of the clone.
+        * @var int */
+    private $occurrences;
 
-    public final PhpToken token;
+    /** @var PhpToken */
+    public $token;
 
-    /** Related clones */
-    public final PairList<Integer, Integer> otherClones;
+    /** Related clones
+     * @var array<array{int, int}> */
+    public $otherClones;
 
     /** Constructor. */
-    public CloneInfo(int length, int position, int occurrences, PhpToken token, PairList<Integer, Integer> otherClones) {
-    this.length = length;
-    this.position = position;
-    this.occurrences = occurrences;
-    this.token = token;
-    this.otherClones = otherClones;
+    public function __construct(int $length, int $position, int $occurrences, PhpToken $token, array $otherClones)
+    {
+        $this->length = $length;
+        $this->position = $position;
+        $this->occurrences = $occurrences;
+        $this->token = $token;
+        $this->otherClones = $otherClones;
     }
 
     /**
      * Returns whether this clone info dominates the given one, i.e. whether
      * both {@link #length} and {@link #occurrences} s not smaller.
      * 
-     * @param later
-     *            The amount the given clone starts later than the "this"
-     *            clone.
+     * @param CloneInfo $ci
+     * @param later The amount the given clone starts later than the "this" clone.
+     * @return boolean
      */
-    public boolean dominates(CloneInfo ci, int later) {
-    return length - later >= ci.length && occurrences >= ci.occurrences;
+    public function dominates(CloneInfo $ci, int $later) {
+        return $this->length - $later >= $ci->length && $occurrences >= $ci->occurrences;
     }
 }
 

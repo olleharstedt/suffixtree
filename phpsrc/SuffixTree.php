@@ -1,3 +1,5 @@
+<?php
+
 /*-------------------------------------------------------------------------+
 |                                                                          |
 | Copyright 2005-2011 The ConQAT Project                                   |
@@ -14,8 +16,6 @@
 | See the License for the specific language governing permissions and      |
 | limitations under the License.                                           |
 +-------------------------------------------------------------------------*/
-
-import java.util.List;
 
 /**
  * Efficient linear time constructible suffix tree using Ukkonen's online
@@ -46,39 +46,49 @@ import java.util.List;
  * @version $Revision: 41751 $
  * @ConQAT.Rating GREEN Hash: 4B2EF0606B3085A6831764ED042FF20D
  */
-public class SuffixTree {
+class SuffixTree {
 
-	/** Infinity in this context. */
-	protected final int INFTY;
+    /** Infinity in this context.
+        * @var int */
+	protected $INFTY;
 
-	/** The word we are working on. */
-	protected final List<?> word;
+    /** The word we are working on.
+        * @var array */
+	protected $word;
 
-	/** The number of nodes created so far. */
-	protected int numNodes = 0;
+    /** The number of nodes created so far.
+        * @var int */
+	protected $numNodes = 0;
 
 	/**
 	 * For each node this holds the index of the first character of
 	 * {@link #word} labeling the transition <b>to</b> this node. This
 	 * corresponds to the <em>k</em> for a transition used in Ukkonen's paper.
+     *
+     * @var int[]
 	 */
-	protected final int[] nodeWordBegin;
+	protected $nodeWordBegin;
 
 	/**
 	 * For each node this holds the index of the one after the last character of
 	 * {@link #word} labeling the transition <b>to</b> this node. This
 	 * corresponds to the <em>p</em> for a transition used in Ukkonen's paper.
+     *
+     * @var int[]
 	 */
-	protected final int[] nodeWordEnd;
+	protected $nodeWordEnd;
 
-	/** For each node its suffix link (called function <em>f</em> by Ukkonen). */
-	protected final int[] suffixLink;
+    /** For each node its suffix link (called function <em>f</em> by Ukkonen).
+        * @var int[] */
+	protected $suffixLink;
 
 	/**
 	 * The next node function realized as a hash table. This corresponds to the
 	 * <em>g</em> function used in Ukkonen's paper.
+     *
+     * @var SuffixTreeHashTable
 	 */
-	protected final SuffixTreeHashTable nextNode;
+	protected $nextNode;
 
 	/**
 	 * An array giving for each node the index where the first child will be
@@ -86,98 +96,121 @@ public class SuffixTree {
 	 * filled "on demand" using
 	 * {@link org.conqat.engine.code_clones.detection.suffixtree.SuffixTreeHashTable#extractChildLists(int[], int[], int[])}
 	 * .
+     *
+     * @var int[]
 	 */
-	protected int[] nodeChildFirst;
+	protected $nodeChildFirst;
 
 	/**
 	 * This array gives the next index of the child list or -1 if this is the
 	 * last one. It is initially empty and will be filled "on demand" using
 	 * {@link org.conqat.engine.code_clones.detection.suffixtree.SuffixTreeHashTable#extractChildLists(int[], int[], int[])}
 	 * .
+     *
+     * @var int[]
 	 */
-	protected int[] nodeChildNext;
+	protected $nodeChildNext;
 
 	/**
 	 * This array stores the actual name (=number) of the mode in the child
 	 * list. It is initially empty and will be filled "on demand" using
 	 * {@link org.conqat.engine.code_clones.detection.suffixtree.SuffixTreeHashTable#extractChildLists(int[], int[], int[])}
 	 * .
+     *
+     * @var int[]
 	 */
-	protected int[] nodeChildNode;
+	protected $nodeChildNode;
 
 	/**
 	 * The node we are currently at as a "global" variable (as it is always
 	 * passed unchanged). This is called <i>s</i> in Ukkonen's paper.
+     *
+     * @var int
 	 */
-	private int currentNode = 0;
+	private $currentNode = 0;
 
 	/**
 	 * Beginning of the word part of the reference pair. This is kept "global"
 	 * (in constrast to the end) as this is passed unchanged to all functions.
 	 * Ukkonen calls this <em>k</em>.
+     *
+     * @var int
 	 */
-	private int refWordBegin = 0;
+	private $refWordBegin = 0;
 
 	/**
 	 * This is the new (or old) explicit state as returned by
 	 * {@link #testAndSplit(int, Object)}. Ukkonen calls this <em>r</em>.
+     *
+     * @var int
 	 */
-	private int explicitNode;
+	private $explicitNode;
 
 	/**
 	 * Create a new suffix tree from a given word. The word given as parameter
 	 * is used internally and should not be modified anymore, so copy it before
 	 * if required.
+     *
+     * @param array $word
 	 */
-	public SuffixTree(List<?> word) {
-		this.word = word;
-		int size = word.size();
-		INFTY = size;
+    public function __construct(array $word)
+    {
+		$this->word = $word;
+		$size = $word->size();
+		$this->INFTY = $size;
 
-		int expectedNodes = 2 * size;
-		nodeWordBegin = new int[expectedNodes];
-		nodeWordEnd = new int[expectedNodes];
-		suffixLink = new int[expectedNodes];
-		nextNode = new SuffixTreeHashTable(expectedNodes);
+		//$expectedNodes = 2 * $size;
+		$this->nodeWordBegin = [];
+		$this->nodeWordEnd = [];
+		$this->suffixLink = [];
+		$this->nextNode = new SuffixTreeHashTable($expectedNodes);
 
-		createRootNode();
+		$this->createRootNode();
 
-		for (int i = 0; i < size; ++i) {
-			update(i);
-			canonize(i + 1);
+		for ($i = 0; $i < $size; ++$i) {
+			$this->update($i);
+			$this->canonize($i + 1);
 		}
 	}
 
-	/** Creates the root node. */
-	private void createRootNode() {
-		numNodes = 1;
-		nodeWordBegin[0] = 0;
-		nodeWordEnd[0] = 0;
-		suffixLink[0] = -1;
+    /**
+     * Creates the root node.
+     *
+     * @return void
+     */
+    private function createRootNode()
+    {
+		$this->numNodes = 1;
+		$this->nodeWordBegin[0] = 0;
+		$this->nodeWordEnd[0] = 0;
+		$this->suffixLink[0] = -1;
 	}
 
 	/**
 	 * The <em>update</em> function as defined in Ukkonen's paper. This inserts
 	 * the character at charPos into the tree. It works on the canonical
 	 * reference pair ({@link #currentNode}, ({@link #refWordBegin}, charPos)).
+     *
+     * @param int $charPos
+     * @return void
 	 */
-	private void update(int charPos) {
-		int lastNode = 0;
-		while (!testAndSplit(charPos, word.get(charPos))) {
-			int newNode = numNodes++;
-			nodeWordBegin[newNode] = charPos;
-			nodeWordEnd[newNode] = INFTY;
-			nextNode.put(explicitNode, word.get(charPos), newNode);
+	private function update(int $charPos) {
+		$lastNode = 0;
+		while (!$this->testAndSplit($charPos, $this->word.get($charPos))) {
+			$this->newNode = $this->numNodes++;
+			$this->nodeWordBegin[$this->newNode] = $charPos;
+			$this->nodeWordEnd[$this->newNode] = $this->INFTY;
+			$this->nextNode->put($this->explicitNode, $this->word[$charPos], $this->newNode);
 
-			if (lastNode != 0) {
-				suffixLink[lastNode] = explicitNode;
+			if ($lastNode != 0) {
+				$this->suffixLink[$lastNode] = $this->explicitNode;
 			}
-			lastNode = explicitNode;
-			currentNode = suffixLink[currentNode];
-			canonize(charPos);
+			$lastNode = $this->explicitNode;
+			$this->currentNode = $this->suffixLink[$this->currentNode];
+			$this->canonize($charPos);
 		}
-		if (lastNode != 0) {
-			suffixLink[lastNode] = currentNode;
+		if ($lastNode != 0) {
+			$this->suffixLink[$lastNode] = $this->currentNode;
 		}
 	}
 
@@ -190,36 +223,39 @@ public class SuffixTree {
 	 * explicit if it not already is and this is not the end-point. It returns
 	 * true if the end-point was reached. The newly created (or reached)
 	 * explicit node is returned in the "global" variable.
+     *
+     * @param int $refWordEnd
+     * @param object $nextCharacter
+     * @return boolean
 	 */
-	private boolean testAndSplit(int refWordEnd, Object nextCharacter) {
-		if (currentNode < 0) {
+	private function testAndSplit(int $refWordEnd, object $nextCharacter) {
+		if ($this->currentNode < 0) {
 			// trap state is always end state
 			return true;
 		}
 
-		if (refWordEnd <= refWordBegin) {
-			if (nextNode.get(currentNode, nextCharacter) < 0) {
-				explicitNode = currentNode;
+		if ($refWordEnd <= $this->refWordBegin) {
+			if ($this->nextNode->get($this->currentNode, $nextCharacter) < 0) {
+				$this->explicitNode = $this->currentNode;
 				return false;
 			}
 			return true;
 		}
 
-		int next = nextNode.get(currentNode, word.get(refWordBegin));
-		if (nextCharacter.equals(word.get(nodeWordBegin[next] + refWordEnd
-				- refWordBegin))) {
+        /** @var int */
+		$next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
+		if ($nextCharacter->equals($this->word[$this->nodeWordBegin[$next] + $refWordEnd - $this->refWordBegin])) {
 			return true;
 		}
 
 		// not an end-point and not explicit, so make it explicit.
-		explicitNode = numNodes++;
-		nodeWordBegin[explicitNode] = nodeWordBegin[next];
-		nodeWordEnd[explicitNode] = nodeWordBegin[next] + refWordEnd
-				- refWordBegin;
-		nextNode.put(currentNode, word.get(refWordBegin), explicitNode);
+		$this->explicitNode = $this->numNodes++;
+		$this->nodeWordBegin[$this->explicitNode] = $this->nodeWordBegin[$next];
+		$this->nodeWordEnd[$this->explicitNode] = $this->nodeWordBegin[$next] + $refWordEnd - $this->refWordBegin;
+		$this->nextNode->put($this->currentNode, $this->word[$this->refWordBegin], $this->explicitNode);
 
-		nodeWordBegin[next] += refWordEnd - refWordBegin;
-		nextNode.put(explicitNode, word.get(nodeWordBegin[next]), next);
+		$this->nodeWordBegin[$next] += $refWordEnd - $this->refWordBegin;
+		$this->nextNode->put($this->explicitNode, $this->word[$this->nodeWordBegin[$next]], $next);
 		return false;
 	}
 
@@ -230,28 +266,29 @@ public class SuffixTree {
 	 * and {@link #refWordBegin} and the parameter, writing the result back to
 	 * the globals.
 	 * 
-	 * @param refWordEnd
-	 *            one after the end index for the word of the reference pair.
+	 * @param int $refWordEnd one after the end index for the word of the reference pair.
+     * @return void
 	 */
-	private void canonize(int refWordEnd) {
-		if (currentNode == -1) {
+	private function canonize(int $refWordEnd) {
+		if ($this->currentNode == -1) {
 			// explicitly handle trap state
-			currentNode = 0;
-			++refWordBegin;
+			$this->currentNode = 0;
+			++$this->refWordBegin;
 		}
 
-		if (refWordEnd <= refWordBegin) {
+		if ($refWordEnd <= $this->refWordBegin) {
 			// empty word, so already canonical
 			return;
 		}
 
-		int next = nextNode.get(currentNode, word.get(refWordBegin));
-		while (nodeWordEnd[next] - nodeWordBegin[next] <= refWordEnd
-				- refWordBegin) {
-			refWordBegin += nodeWordEnd[next] - nodeWordBegin[next];
-			currentNode = next;
-			if (refWordEnd > refWordBegin) {
-				next = nextNode.get(currentNode, word.get(refWordBegin));
+        /** @var int */
+		$next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
+		while ($this->nodeWordEnd[$next] - $this->nodeWordBegin[$next] <= $refWordEnd
+				- $this->refWordBegin) {
+			$this->refWordBegin += $this->nodeWordEnd[$next] - $this->nodeWordBegin[$next];
+			$this->currentNode = $next;
+			if ($refWordEnd > $this->refWordBegin) {
+				$next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
 			} else {
 				break;
 			}
@@ -261,59 +298,62 @@ public class SuffixTree {
 	/**
 	 * This method makes sure the child lists are filled (required for
 	 * traversing the tree).
+     *
+     * @return void
 	 */
-	protected void ensureChildLists() {
-		if (nodeChildFirst == null || nodeChildFirst.length < numNodes) {
-			nodeChildFirst = new int[numNodes];
-			nodeChildNext = new int[numNodes];
-			nodeChildNode = new int[numNodes];
-			nextNode.extractChildLists(nodeChildFirst, nodeChildNext,
-					nodeChildNode);
+    protected function ensureChildLists()
+    {
+		if ($this->nodeChildFirst == null || count($this->nodeChildFirst) < $this->numNodes) {
+			$this->nodeChildFirst = [];
+			$this->nodeChildNext = [];
+			$this->nodeChildNode = [];
+			$this->nextNode->extractChildLists($this->nodeChildFirst, $this->nodeChildNext, $this->nodeChildNode);
 		}
 	}
 
 	/** Prints some internal numbers to std error. */
+    /*
 	protected void _dumpDebugInfos() {
-		System.err.println("Number of nodes created: " + numNodes);
+		System.err.println("Number of nodes created: " + $this->numNodes);
 		System.err.println("Hash table infos: ");
-		nextNode._printDebugInfo();
+		$this->nextNode->_printDebugInfo();
 	}
+     */
 
 	/**
 	 * Returns a GraphViz DOT string describing this suffix tree.
 	 * 
-	 * @param separationChar
-	 *            the character used for separating the charaters along a child
+	 * @param separationChar the character used for separating the charaters along a child
 	 *            link (for "normal" characters this might be an empty string,
 	 *            for integers it might be a comma).
-	 * @param includeSuffixLinks
-	 *            if true, suffix links will be included in the output.
+	 * @param includeSuffixLinks if true, suffix links will be included in the output.
 	 */
+    /*
 	protected String _dumpAsDOT(String separationChar,
 			boolean includeSuffixLinks) {
 		ensureChildLists();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("digraph G {\n");
-		for (int i = 0; i < numNodes; ++i) {
+		for (int i = 0; i < $this->numNodes; ++i) {
 			sb.append("  n" + i + ";\n");
 		}
-		for (int i = 0; i < numNodes; ++i) {
-			for (int e = nodeChildFirst[i]; e >= 0; e = nodeChildNext[e]) {
-				sb.append("  n" + i + " -> n" + nodeChildNode[e] + " [label=\"");
+		for (int i = 0; i < $this->numNodes; ++i) {
+			for (int e = $this->nodeChildFirst[i]; e >= 0; e = $this->nodeChildNext[e]) {
+				sb.append("  n" + i + " -> n" + $this->nodeChildNode[e] + " [label=\"");
 				String sep = "";
-				for (int j = nodeWordBegin[nodeChildNode[e]]; j < nodeWordEnd[nodeChildNode[e]]; ++j) {
+				for (int j = $this->nodeWordBegin[$this->nodeChildNode[e]]; j < $this->nodeWordEnd[$this->nodeChildNode[e]]; ++j) {
 					sb.append(sep);
-					sb.append(word.get(j).toString());
+					sb.append($this->word[j]->toString());
 					sep = separationChar;
 				}
 				sb.append("\"];\n");
 			}
 		}
 		if (includeSuffixLinks) {
-			for (int i = 1; i < numNodes; ++i) {
-				if (nodeChildFirst[i] >= 0) {
-					sb.append("  n" + i + " -> n" + suffixLink[i]
+			for (int i = 1; i < $this->numNodes; ++i) {
+				if ($this->nodeChildFirst[i] >= 0) {
+					sb.append("  n" + i + " -> n" + $this->suffixLink[i]
 							+ " [color=red,constraint=false];\n");
 				}
 			}
@@ -321,55 +361,31 @@ public class SuffixTree {
 		sb.append("}\n");
 		return sb.toString();
 	}
+     */
 
 	/**
 	 * Returns whether the given word is contained in the string given at
 	 * construction time.
+     *
+     * @param array $find
+     * @return boolean
 	 */
-	public boolean containsWord(List<?> find) {
-		int node = 0;
-		int findSize = find.size();
-		for (int i = 0; i < findSize;) {
-			int next = nextNode.get(node, find.get(i));
-			if (next < 0) {
+	public function containsWord(array $find) {
+		$node = 0;
+		$findSize = count($find);
+		for ($i = 0; $i < $findSize;) {
+            /** @var int */
+			$next = $this->nextNode->get($node, $find[$i]);
+			if ($next < 0) {
 				return false;
 			}
-			for (int j = nodeWordBegin[next]; j < nodeWordEnd[next]
-					&& i < findSize; ++i, ++j) {
-				if (!word.get(j).equals(find.get(i))) {
+			for ($j = $this->nodeWordBegin[$next]; $j < $this->nodeWordEnd[$next] && $i < $findSize; ++$i, ++$j) {
+				if (!$this->word[$j]->equals($find[$i])) {
 					return false;
 				}
 			}
-			node = next;
+			$node = $next;
 		}
 		return true;
 	}
-
-	/**
-	 * A sentinel character which can be used to produce explicit leaves for all
-	 * suffixes. The sentinel just has to be appended to the list before handing
-	 * it to the suffix tree. For the sentinel equality and object identity are
-	 * the same!
-	 */
-    /*
-	public static class Sentinel {
-
-		private final int hash = (int) (Math.random() * Integer.MAX_VALUE);
-
-		@Override
-		public int hashCode() {
-			return hash;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return obj == this;
-		}
-
-		@Override
-		public String toString() {
-			return "$";
-		}
-	}
-    */
 }
