@@ -189,11 +189,11 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
     {
 		$this->minLength = $minLength;
 		$this->headEquality = $headEquality;
-		$this->cloneInfos->clear();
+		//$this->cloneInfos->clear();
 
-		for ($i = 0; $i < $this->word.size(); ++$i) {
+		for ($i = 0; $i < count($this->word); ++$i) {
 			// Do quick start, as first character has to match anyway.
-			$node = nextNode.get(0, $this->word.get($i));
+			$node = $this->nextNode->get(0, $this->word[$i]);
 			if ($node < 0 || $this->leafCount[$node] <= 1) {
 				continue;
 			}
@@ -208,7 +208,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 					++$numReported;
 				}
 			}
-			if ($length >= minLength && $numReported != 1) {
+			if ($length >= $this->minLength && $numReported != 1) {
 				$this->reportClone($i, $i + $length, $node, $length, $length);
 			}
 		}
@@ -233,7 +233,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		for ($index = 0; $index <= count($this->word); ++$index) {
             /** @var CloneInfo[] */
 			//$existingClones = $this->cloneInfos.getCollection($index);
-			$existingClones = $this->cloneInfos[$index];
+			$existingClones = $this->cloneInfos[$index] ?? null;
 			if ($existingClones != null) {
                 foreach ($existingClones as $ci) {
                     // length = number of tokens
@@ -245,9 +245,9 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
                         /** @var CloneInfo */
                         $previousCi = $map[$ci->token->line];
                         if ($previousCi == null) {
-                            $map.put($ci->token->line, $ci);
+                            $map[$ci->token->line] =  $ci;
                         } else if ($ci->length > $previousCi->length) {
-                            $map.put($ci->token->line, $ci);
+                            $map[$ci->token->line] = $ci;
                         }
                         //System.out.println("length = " + $ci.length + ", occurrences = " + $ci.occurrences);
                         //System.out.println("line = " + $ci.token.line);
@@ -288,7 +288,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         usort($values, function ($a, $b) { return $b->length - $a->length;});
         //Set set = $map.entrySet();
         //Iterator itr = $values.iterator();
-        System.out.printf(
+        printf(
             "\nFound %d clones with %d duplicated lines in %d files:\n\n",
             count($values),
             0,  // TODO: Fix
@@ -395,7 +395,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			}
 		}
 
-		while ($wordPosition + $iBest < $this->word.size()
+		while ($wordPosition + $iBest < count($this->word)
 				&& $jBest < $currentNodeWordLength
 				&& $this->word.get($wordPosition + $iBest) != $this->word
 						.get($this->nodeWordBegin[$node] + $jBest)
@@ -426,16 +426,16 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		// disallow tail changes
 		while ($iBest > 0
 				&& $jBest > 0
-				&& !$this->word.get($wordPosition + $iBest - 1).equals(
-						$this->word.get($this->nodeWordBegin[$node] + $jBest - 1))) {
+				&& !$this->word[$wordPosition + $iBest - 1]->equals(
+						$this->word[$this->nodeWordBegin[$node] + $jBest - 1])) {
 
 			if ($iBest > 1
-					&& $this->word.get($wordPosition + $iBest - 2).equals(
-							$this->word.get($this->nodeWordBegin[$node] + $jBest - 1))) {
+					&& $this->word[$wordPosition + $iBest - 2]->equals(
+							$this->word[$this->nodeWordBegin[$node] + $jBest - 1])) {
 				--$iBest;
 			} else if ($jBest > 1
-					&& $this->word.get($wordPosition + $iBest - 1).equals(
-							$this->word.get($this->nodeWordBegin[$node] + $jBest - 2))) {
+					&& $this->word[$wordPosition + $iBest - 1]->equals(
+							$this->word[$this->nodeWordBegin[$node] + $jBest - 2])) {
 				--$jBest;
 			} else {
 				--$iBest;
@@ -482,7 +482,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			$this->edBuffer[0][$currentLength] = $currentLength;
 			$this->edBuffer[$currentLength][0] = $currentLength;
 
-			if ($wordPosition + $currentLength >= $this->word.size()) {
+			if ($wordPosition + $currentLength >= count($this->word)) {
 				break;
 			}
 
@@ -530,7 +530,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
     {
         /** @var int */
 		$length = $wordEnd - $wordBegin;
-		if ($length < minLength || $nodeWordLength < minLength) {
+		if ($length < $this->minLength || $nodeWordLength < $this->minLength) {
 			return;
 		}
 

@@ -107,7 +107,7 @@ class SuffixTreeHashTable
         /** @var int */
 		$hash = $keyChar->hashCode();
         /** @var int */
-		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
+		$pos = $this->posMod((int) $this->primaryHash($keyNode, $hash));
         /** @var int */
 		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] !== null) {
@@ -161,7 +161,7 @@ class SuffixTreeHashTable
      */
     private function secondaryHash(int $keyNode, int $keyCharHash)
     {
-		$result = $this->posMod(($keyCharHash ** (1025 * $keyNode)));
+		$result = $this->posMod((int) ($keyCharHash ** (1025 * $keyNode)));
 		if ($result == 0) {
 			return 2;
 		}
