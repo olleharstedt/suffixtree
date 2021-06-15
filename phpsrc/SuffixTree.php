@@ -158,7 +158,7 @@ class SuffixTree
     public function __construct(array $word)
     {
 		$this->word = $word;
-		$size = $word->size();
+		$size = count($word);
 		$this->INFTY = $size;
 
 		//$expectedNodes = 2 * $size;
