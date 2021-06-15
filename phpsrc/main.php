@@ -4,6 +4,7 @@
 
 require_once "JavaObjectInterface.php";
 require_once "PhpToken.php";
+require_once "Sentinel.php";
 require_once "SuffixTreeHashTable.php";
 require_once "SuffixTree.php";
 require_once "ApproximateCloneDetectingSuffixTree.php";
