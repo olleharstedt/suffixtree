@@ -162,9 +162,9 @@ class SuffixTree
 		$this->INFTY = $size;
 
 		$expectedNodes = 2 * $size;
-		$this->nodeWordBegin = [];
-		$this->nodeWordEnd = [];
-		$this->suffixLink = [];
+        $this->nodeWordBegin = array_fill(0, $expectedNodes, 0);
+		$this->nodeWordEnd = array_fill(0, $expectedNodes, 0);
+		$this->suffixLink = array_fill(0, $expectedNodes, 0);
 		$this->nextNode = new SuffixTreeHashTable($expectedNodes);
 
 		$this->createRootNode();
@@ -306,9 +306,9 @@ class SuffixTree
     protected function ensureChildLists()
     {
 		if ($this->nodeChildFirst == null || count($this->nodeChildFirst) < $this->numNodes) {
-			$this->nodeChildFirst = [];
-			$this->nodeChildNext = [];
-			$this->nodeChildNode = [];
+			$this->nodeChildFirst = array_fill(0, $this->numNodes, 0);
+			$this->nodeChildNext = array_fill(0, $this->numNodes, 0);
+			$this->nodeChildNode = array_fill(0, $this->numNodes, 0);
 			$this->nextNode->extractChildLists($this->nodeChildFirst, $this->nodeChildNext, $this->nodeChildNode);
 		}
 	}

@@ -2,6 +2,6 @@
 
 interface JavaObjectInterface
 {
-    public function hashCode();
-    public function equals(JavaObjectInterface $obj);
+    public function hashCode(): int;
+    public function equals(JavaObjectInterface $obj): bool;
 }

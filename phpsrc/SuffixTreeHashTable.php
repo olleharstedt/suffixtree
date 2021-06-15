@@ -88,9 +88,9 @@ class SuffixTreeHashTable
 		}
 		$this->tableSize = $this->allowedSizes[$sizeIndex];
 
-		$this->keyNodes = [];
-		$this->keyChars = [];
-		$this->resultNodes = [];
+		$this->keyNodes = array_fill(0, $this->tableSize, 0);
+		$this->keyChars = array_fill(0, $this->tableSize, new JavaObject());
+		$this->resultNodes = array_fill(0, $this->tableSize, 0);
 	}
 
 	/**
@@ -105,8 +105,8 @@ class SuffixTreeHashTable
     {
 		++$this->_numFind;
 		$hash = $keyChar->hashCode();
-		$pos = $this->posMod(primaryHash($keyNode, $hash));
-		$secondary = secondaryHash($keyNode, $hash);
+		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
+		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] != null) {
 			if ($this->keyNodes[$pos] == $keyNode && $keyChar->equals($this->keyChars[$pos])) {
 				break;
@@ -135,7 +135,7 @@ class SuffixTreeHashTable
     /** Inserts the given result node for the (node, character) key pair.
         * @return void */
 	public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode) {
-		$pos = hashFind($keyNode, $keyChar);
+		$pos = $this->hashFind($keyNode, $keyChar);
 		if ($this->keyChars[$pos] == null) {
 			++$this->_numStoredNodes;
 			$this->keyChars[$pos] = $keyChar;
@@ -146,15 +146,19 @@ class SuffixTreeHashTable
 
     /** Returns the primary hash value for a (node, character) key pair.
         * @return int */
-	private function primaryHash(int $keyNode, int $keyCharHash) {
-		return $keyCharHash ^ (13 * $keyNode);
+    private function primaryHash(int $keyNode, int $keyCharHash)
+    {
+		return $keyCharHash ** (13 * $keyNode);
 	}
 
-    /** Returns the secondary hash value for a (node, character) key pair.
-        * @return int */
+    /**
+     * Returns the secondary hash value for a (node, character) key pair.
+     *
+     * @return int
+     */
     private function secondaryHash(int $keyNode, int $keyCharHash)
     {
-		$result = $this->posMod(($keyCharHash ^ (1025 * $keyNode)));
+		$result = $this->posMod(($keyCharHash ** (1025 * $keyNode)));
 		if ($result == 0) {
 			return 2;
 		}

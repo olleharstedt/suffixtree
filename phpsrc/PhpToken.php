@@ -25,15 +25,16 @@ class PhpToken implements JavaObjectInterface
     /**
      * @return int
      */
-    public function hashCode() {
-        return $this->content->hashCode();
+    public function hashCode(): int {
+        return (int) crc32($this->content);
+        //return $this->content->hashCode();
         //return $tokenCode;
     }
 
     /**
      * @return boolean
      */
-    public function equals(JavaObjectInterface $token) {
+    public function equals(JavaObjectInterface $token): bool {
         return $token->hashCode() == $this->hashCode();
     }
 
