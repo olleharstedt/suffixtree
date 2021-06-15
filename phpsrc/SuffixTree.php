@@ -171,7 +171,7 @@ class SuffixTree
 
 		for ($i = 0; $i < $size; ++$i) {
 			$this->update($i);
-			$this->canonize($i + 1);
+			//$this->canonize($i + 1);
 		}
 	}
 
@@ -199,10 +199,10 @@ class SuffixTree
 	private function update(int $charPos) {
 		$lastNode = 0;
 		while (!$this->testAndSplit($charPos, $this->word[$charPos])) {
-			$this->newNode = $this->numNodes++;
-			$this->nodeWordBegin[$this->newNode] = $charPos;
-			$this->nodeWordEnd[$this->newNode] = $this->INFTY;
-			$this->nextNode->put($this->explicitNode, $this->word[$charPos], $this->newNode);
+			$newNode = $this->numNodes++;
+			$this->nodeWordBegin[$newNode] = $charPos;
+			$this->nodeWordEnd[$newNode] = $this->INFTY;
+			$this->nextNode->put($this->explicitNode, $this->word[$charPos], $newNode);
 
 			if ($lastNode != 0) {
 				$this->suffixLink[$lastNode] = $this->explicitNode;
@@ -230,7 +230,9 @@ class SuffixTree
      * @param object $nextCharacter
      * @return boolean
 	 */
-	private function testAndSplit(int $refWordEnd, JavaObjectInterface $nextCharacter) {
+    private function testAndSplit(int $refWordEnd, JavaObjectInterface $nextCharacter)
+    {
+        echo 'testAndSplit';
 		if ($this->currentNode < 0) {
 			// trap state is always end state
 			return true;
@@ -241,6 +243,7 @@ class SuffixTree
 				$this->explicitNode = $this->currentNode;
 				return false;
 			}
+            echo 'testAndSplit';
 			return true;
 		}
 

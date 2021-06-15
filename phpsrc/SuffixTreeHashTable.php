@@ -107,12 +107,14 @@ class SuffixTreeHashTable
 		$hash = $keyChar->hashCode();
 		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
 		$secondary = $this->secondaryHash($keyNode, $hash);
-		while ($this->keyChars[$pos] != null) {
-			if ($this->keyNodes[$pos] == $keyNode && $keyChar->equals($this->keyChars[$pos])) {
+		while ($this->keyChars[$pos] !== null) {
+            var_dump($this->keyChars[$pos]);
+			if ($this->keyNodes[$pos] === $keyNode && $keyChar->equals($this->keyChars[$pos])) {
 				break;
 			}
 			++$this->_numColl;
 			$pos = ($pos + $secondary) % $this->tableSize;
+            var_dump($pos);
 		}
 		return $pos;
 	}

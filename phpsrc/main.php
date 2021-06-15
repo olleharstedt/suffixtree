@@ -13,5 +13,8 @@ require_once "SuffixTreeHashTable.php";
 require_once "SuffixTree.php";
 require_once "ApproximateCloneDetectingSuffixTree.php";
 
-$word = [new PhpToken(1, 'T_STRING', 100, 'file.php', 'content')];
+$word = [
+    new PhpToken(1, 'T_STRING', 100, 'file.php', 'content'),
+    new Sentinel()
+];
 $tree = new ApproximateCloneDetectingSuffixTree($word);

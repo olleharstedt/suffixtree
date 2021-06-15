@@ -16,11 +16,11 @@ class Sentinel implements JavaObjectInterface
     }
 
     public function hashCode(): int {
-        return $hash;
+        return $this->hash;
     }
 
     public function equals(object $obj): bool {
-        return $obj == $this;
+        return $obj->hashCode() === $this->hash;
     }
 
     public function toString(): string {

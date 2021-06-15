@@ -35,7 +35,7 @@ class PhpToken implements JavaObjectInterface
      * @return boolean
      */
     public function equals(JavaObjectInterface $token): bool {
-        return $token->hashCode() == $this->hashCode();
+        return $token->hashCode() === $this->hashCode();
     }
 
     /**
