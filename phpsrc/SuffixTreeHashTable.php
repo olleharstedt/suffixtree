@@ -79,7 +79,7 @@ class SuffixTreeHashTable
      *
      * @param int $numNodes
 	 */
-    public function __construct (int $numNodes)
+    public function __construct(int $numNodes)
     {
 		$minSize = (int) ceil(1.5 * $numNodes);
 		$sizeIndex = 0;

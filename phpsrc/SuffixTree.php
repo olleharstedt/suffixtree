@@ -161,7 +161,7 @@ class SuffixTree
 		$size = count($word);
 		$this->INFTY = $size;
 
-		//$expectedNodes = 2 * $size;
+		$expectedNodes = 2 * $size;
 		$this->nodeWordBegin = [];
 		$this->nodeWordEnd = [];
 		$this->suffixLink = [];
@@ -198,7 +198,7 @@ class SuffixTree
 	 */
 	private function update(int $charPos) {
 		$lastNode = 0;
-		while (!$this->testAndSplit($charPos, $this->word.get($charPos))) {
+		while (!$this->testAndSplit($charPos, $this->word[$charPos])) {
 			$this->newNode = $this->numNodes++;
 			$this->nodeWordBegin[$this->newNode] = $charPos;
 			$this->nodeWordEnd[$this->newNode] = $this->INFTY;
@@ -230,7 +230,7 @@ class SuffixTree
      * @param object $nextCharacter
      * @return boolean
 	 */
-	private function testAndSplit(int $refWordEnd, object $nextCharacter) {
+	private function testAndSplit(int $refWordEnd, JavaObjectInterface $nextCharacter) {
 		if ($this->currentNode < 0) {
 			// trap state is always end state
 			return true;
