@@ -36,8 +36,8 @@
  *
  * (-cp = class path)
  */
-class ApproximateCloneDetectingSuffixTree extends SuffixTree {
-
+class ApproximateCloneDetectingSuffixTree extends SuffixTree
+{
     /**
      * The number of leaves reachable from the given node (1 for leaves).
      * @var int[]

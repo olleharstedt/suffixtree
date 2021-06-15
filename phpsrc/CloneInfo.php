@@ -18,7 +18,8 @@
 +-------------------------------------------------------------------------*/
 
 /** Stores information on a clone. */
-class CloneInfo {
+class CloneInfo
+{
 
     /** Length of the clone in tokens.
         * @var int */

@@ -46,10 +46,12 @@
  * @version $Revision: 41751 $
  * @ConQAT.Rating GREEN Hash: 4B2EF0606B3085A6831764ED042FF20D
  */
-class SuffixTree {
-
-    /** Infinity in this context.
-        * @var int */
+class SuffixTree
+{
+    /**
+     * Infinity in this context.
+     * @var int 
+     */
 	protected $INFTY;
 
     /** The word we are working on.
