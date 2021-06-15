@@ -36,7 +36,7 @@
  *
  * (-cp = class path)
  */
-abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
+class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 
     /**
      * The number of leaves reachable from the given node (1 for leaves).
@@ -48,26 +48,26 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
      * This is the distance between two entries in the {@link #cloneInfos} map.
      * @var int
      */
-	private static final INDEX_SPREAD = 10;
+	private $INDEX_SPREAD = 10;
 
     /**
      * This map stores for each position the relevant clone infos.
      * @var array<int, CloneInfo>
      */
-	private final $cloneInfos = [];
+	private $cloneInfos = [];
 
 	/**
 	 * The maximal length of a clone. This influences the size of the
 	 * (quadratic) {@link #edBuffer}.
      * @var int
 	 */
-	private static final MAX_LENGTH = 1024;
+	private $MAX_LENGTH = 1024;
 
     /**
      * Buffer used for calculating edit distance.
      * @var array<int[]>
      */
-	private final $edBuffer = [];
+	private $edBuffer = [];
 
     /**
      * The minimal length of clones to return.
@@ -88,10 +88,12 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	 * <p>
 	 * This only word correctly if the given word is closed using a sentinel
 	 * character.
+     *
      * @param array $word List of tokens to analyze
 	 */
-	public __construct(array $word) {
-        parent::__construct(word);
+    public function __construct(array $word)
+    {
+        parent::__construct($word);
 		$this->ensureChildLists();
 		$this->leafCount = [$this->numNodes];
 		$this->initLeafCount(0);
@@ -104,14 +106,15 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
      * @param int $node
      * @return void
 	 */
-	private function initLeafCount(int $node) {
-		leafCount[node] = 0;
-		for (int e = nodeChildFirst[node]; e >= 0; e = nodeChildNext[e]) {
-			initLeafCount(nodeChildNode[e]);
-			leafCount[node] += leafCount[nodeChildNode[e]];
+    private function initLeafCount(int $node)
+    {
+		$this->leafCount[$node] = 0;
+		for ($e = $this->nodeChildFirst[$node]; $e >= 0; $e = $this->nodeChildNext[$e]) {
+			$this->initLeafCount($this->nodeChildNode[$e]);
+			$this->leafCount[$node] += $this->leafCount[$this->nodeChildNode[$e]];
 		}
-		if (leafCount[node] == 0) {
-			leafCount[node] = 1;
+		if ($this->leafCount[$node] == 0) {
+			$this->leafCount[$node] = 1;
 		}
 	}
 
@@ -178,29 +181,29 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	 */
     public function findClones(int $minLength, int $maxErrors, int $headEquality)
     {
-		this.minLength = minLength;
-		this.headEquality = headEquality;
-		cloneInfos.clear();
+		$this->minLength = $minLength;
+		$this->headEquality = $headEquality;
+		$this->cloneInfos->clear();
 
-		for (int i = 0; i < word.size(); ++i) {
+		for ($i = 0; $i < $this->word.size(); ++$i) {
 			// Do quick start, as first character has to match anyway.
-			int node = nextNode.get(0, word.get(i));
-			if (node < 0 || leafCount[node] <= 1) {
+			$node = nextNode.get(0, $this->word.get($i));
+			if ($node < 0 || $this->leafCount[$node] <= 1) {
 				continue;
 			}
 
 			// we know that we have an exact match of at least 'length'
 			// characters, as the word itself is part of the suffix tree.
-			int length = nodeWordEnd[node] - nodeWordBegin[node];
-			int numReported = 0;
-			for (int e = nodeChildFirst[node]; e >= 0; e = nodeChildNext[e]) {
-				if (matchWord(i, i + length, nodeChildNode[e], length,
-						maxErrors)) {
-					++numReported;
+			$length = $this->nodeWordEnd[$node] - $this->nodeWordBegin[$node];
+			$numReported = 0;
+			for (int $e = $this->nodeChildFirst[$node]; $e >= 0; $e = $this->nodeChildNext[$e]) {
+				if ($this->matchWord($i, $i + $length, $this->nodeChildNode[$e], $length,
+						$maxErrors)) {
+					++$numReported;
 				}
 			}
-			if (length >= minLength && numReported != 1) {
-				reportClone(i, i + length, node, length, length);
+			if ($length >= minLength && $numReported != 1) {
+				$this->reportClone($i, $i + $length, $node, $length, $length);
 			}
 		}
 
@@ -216,8 +219,8 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         TreeSet<CloneInfo> tree = new TreeSet<CloneInfo>(comp);
 
         List<CloneInfo> allClones = new ArrayList<CloneInfo>();
-		for (int index = 0; index <= word.size(); ++index) {
-			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
+		for (int index = 0; index <= $this->word.size(); ++index) {
+			List<CloneInfo> existingClones = $this->cloneInfos.getCollection(index);
 			if (existingClones != null) {
 				for (CloneInfo ci : existingClones) {
                     // length = number of tokens
@@ -237,7 +240,7 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                         List<Integer> others = ci.otherClones.extractFirstList();
                         for (int j = 0; j < others.size(); j++) {
                             int otherStart = others.get(j);
-                            PhpToken t = (PhpToken) word.get(otherStart);
+                            PhpToken t = (PhpToken) $this->word.get(otherStart);
                             //System.out.println("\tother clone start = " + t.line);
                         }
                     }
@@ -281,7 +284,7 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
             //CloneInfo ci = (CloneInfo) map.get(keys.get(i));
             CloneInfo ci = (CloneInfo) itr.next();
             try {
-                PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
+                PhpToken lastToken = (PhpToken) $this->word.get(ci.position + ci.length);
                 int lines = lastToken.line - ci.token.line;
                 System.out.printf(
                     "  - %s:%d-%d (%d lines)\n",
@@ -290,14 +293,14 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
                     ci.token.line + lines - 1,
                     lines
                 );
-            } catch(IndexOutOfBoundsException e) {
+            } catch(IndexOutOfBoundsException $e) {
                 System.out.printf("index out of bounds, ci.position = %d, ci.length = %d", ci.position, ci.length);
             }
             List<Integer> others = ci.otherClones.extractFirstList();
             for (int j = 0; j < others.size(); j++) {
                 int otherStart = others.get(j);
-                PhpToken t = (PhpToken) word.get(otherStart);
-                PhpToken lastToken = (PhpToken) word.get(ci.position + ci.length);
+                PhpToken t = (PhpToken) $this->word.get(otherStart);
+                PhpToken lastToken = (PhpToken) $this->word.get(ci.position + ci.length);
                 int lines = lastToken.line - ci.token.line;
                 System.out.printf(
                         "    %s:%d-%d\n",
@@ -313,216 +316,218 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	/**
 	 * Performs the approximative matching between the input word and the tree.
 	 * 
-	 * @param wordStart
-	 *            the start position of the currently matched word (position in
+	 * @param int $wordStart the start position of the currently matched word (position in
 	 *            the input word).
-	 * @param wordPosition
-	 *            the current position along the input word.
-	 * @param node
-	 *            the node we are currently at (i.e. the edge leading to this
+	 * @param int $wordPosition the current position along the input word.
+	 * @param int $node the node we are currently at (i.e. the edge leading to this
 	 *            node is relevant to us).
-	 * @param nodeWordLength
-	 *            the length of the word found along the nodes (this may be
+	 * @param int $nodeWordLength the length of the word found along the nodes (this may be
 	 *            different from the length along the input word due to gaps).
-	 * @param maxErrors
-	 *            the number of errors still allowed.
-	 * @return whether some clone was reported
+	 * @param int $maxErrors the number of errors still allowed.
+	 * @return boolean whether some clone was reported
+     * @throws ConQATException
 	 */
-	private boolean matchWord(int wordStart, int wordPosition, int node,
-			int nodeWordLength, int maxErrors) throws ConQATException {
-
+    private function matchWord(int $wordStart, int $wordPosition, int $node, int $nodeWordLength, int $maxErrors)
+    {
 		// We are aware that this method is longer than desirable for code
 		// reading. However, we currently do not see a refactoring that has a
 		// sensible cost-benefit ratio. Suggestions are welcome!
 
 		// self match?
-		if (leafCount[node] == 1 && nodeWordBegin[node] == wordPosition) {
+		if ($this->leafCount[$node] == 1 && $this->nodeWordBegin[$node] == $wordPosition) {
 			return false;
 		}
 
-		int currentNodeWordLength = Math.min(nodeWordEnd[node]
-				- nodeWordBegin[node], MAX_LENGTH - 1);
+		$currentNodeWordLength = min($this->nodeWordEnd[$node] - $this->nodeWordBegin[$node], $this->MAX_LENGTH - 1);
+
 		// do min edit distance
-		int currentLength = calculateMaxLength(wordStart, wordPosition, node,
-				maxErrors, currentNodeWordLength);
+        /** @var int */
+		$currentLength = $this->calculateMaxLength($wordStart, $wordPosition, $node,
+				$maxErrors, $currentNodeWordLength);
 
-		if (currentLength == 0) {
+		if ($currentLength == 0) {
 			return false;
 		}
 
-		if (currentLength >= MAX_LENGTH - 1) {
-			reportBufferShortage(nodeWordBegin[node], currentNodeWordLength);
+		if ($currentLength >= $this->MAX_LENGTH - 1) {
+			$this->reportBufferShortage($this->nodeWordBegin[$node], $currentNodeWordLength);
 		}
 
 		// calculate cheapest match
-		int best = maxErrors + 42;
-		int iBest = 0;
-		int jBest = 0;
-		for (int k = 0; k <= currentLength; ++k) {
-			int i = currentLength - k;
-			int j = currentLength;
-			if (edBuffer[i][j] < best) {
-				best = edBuffer[i][j];
-				iBest = i;
-				jBest = j;
+		$best = $maxErrors + 42;
+		$iBest = 0;
+		$jBest = 0;
+		for (int $k = 0; $k <= $currentLength; ++$k) {
+			int $i = $currentLength - $k;
+			int j = $currentLength;
+			if ($this->edBuffer[$i][j] < $best) {
+				$best = $this->edBuffer[$i][j];
+				$iBest = $i;
+				$jBest = j;
 			}
 
-			i = currentLength;
-			j = currentLength - k;
-			if (edBuffer[i][j] < best) {
-				best = edBuffer[i][j];
-				iBest = i;
-				jBest = j;
+			$i = $currentLength;
+			j = $currentLength - $k;
+			if ($this->edBuffer[$i][j] < $best) {
+				$best = $this->edBuffer[$i][j];
+				$iBest = $i;
+				$jBest = j;
 			}
 		}
 
-		while (wordPosition + iBest < word.size()
-				&& jBest < currentNodeWordLength
-				&& word.get(wordPosition + iBest) != word
-						.get(nodeWordBegin[node] + jBest)
-				&& word.get(wordPosition + iBest).equals(
-						word.get(nodeWordBegin[node] + jBest))) {
-			++iBest;
-			++jBest;
+		while ($wordPosition + $iBest < $this->word.size()
+				&& $jBest < $currentNodeWordLength
+				&& $this->word.get($wordPosition + $iBest) != $this->word
+						.get($this->nodeWordBegin[$node] + $jBest)
+				&& $this->word.get($wordPosition + $iBest).equals(
+						$this->word.get($this->nodeWordBegin[$node] + $jBest))) {
+			++$iBest;
+			++$jBest;
 		}
 
-		int numReported = 0;
-		if (currentLength == currentNodeWordLength) {
+		$numReported = 0;
+		if ($currentLength == $currentNodeWordLength) {
 			// we may proceed
-			for (int e = nodeChildFirst[node]; e >= 0; e = nodeChildNext[e]) {
-				if (matchWord(wordStart, wordPosition + iBest,
-						nodeChildNode[e], nodeWordLength + jBest, maxErrors
-								- best)) {
-					++numReported;
+			for ($e = $this->nodeChildFirst[$node]; $e >= 0; $e = $this->nodeChildNext[$e]) {
+				if ($this->matchWord($wordStart, $wordPosition + $iBest,
+						$this->nodeChildNode[$e], $nodeWordLength + $jBest, $maxErrors
+								- $best)) {
+					++$numReported;
 				}
 			}
 		}
 
 		// do not report locally if had reports in exactly one subtree (would be
 		// pure subclone)
-		if (numReported == 1) {
+		if ($numReported == 1) {
 			return true;
 		}
 
 		// disallow tail changes
-		while (iBest > 0
-				&& jBest > 0
-				&& !word.get(wordPosition + iBest - 1).equals(
-						word.get(nodeWordBegin[node] + jBest - 1))) {
+		while ($iBest > 0
+				&& $jBest > 0
+				&& !$this->word.get($wordPosition + $iBest - 1).equals(
+						$this->word.get($this->nodeWordBegin[$node] + $jBest - 1))) {
 
-			if (iBest > 1
-					&& word.get(wordPosition + iBest - 2).equals(
-							word.get(nodeWordBegin[node] + jBest - 1))) {
-				--iBest;
-			} else if (jBest > 1
-					&& word.get(wordPosition + iBest - 1).equals(
-							word.get(nodeWordBegin[node] + jBest - 2))) {
-				--jBest;
+			if ($iBest > 1
+					&& $this->word.get($wordPosition + $iBest - 2).equals(
+							$this->word.get($this->nodeWordBegin[$node] + $jBest - 1))) {
+				--$iBest;
+			} else if ($jBest > 1
+					&& $this->word.get($wordPosition + $iBest - 1).equals(
+							$this->word.get($this->nodeWordBegin[$node] + $jBest - 2))) {
+				--$jBest;
 			} else {
-				--iBest;
-				--jBest;
+				--$iBest;
+				--$jBest;
 			}
 		}
 
 		// report if real clone
-		if (iBest > 0 && jBest > 0) {
-			numReported += 1;
-			reportClone(wordStart, wordPosition + iBest, node, jBest,
-					nodeWordLength + jBest);
+		if ($iBest > 0 && $jBest > 0) {
+			$numReported += 1;
+			$this->reportClone($wordStart, $wordPosition + $iBest, $node, $jBest,
+					$nodeWordLength + $jBest);
 		}
 
-		return numReported > 0;
+		return $numReported > 0;
 	}
 
 	/**
 	 * Calculates the maximum length we may take along the word to the current
-	 * node (respecting the number of errors to make). *
+	 * $node (respecting the number of errors to make). *
 	 * 
-	 * @param wordStart
-	 *            the start position of the currently matched word (position in
+	 * @param int $wordStart the start position of the currently matched word (position in
 	 *            the input word).
-	 * @param wordPosition
-	 *            the current position along the input word.
-	 * @param node
-	 *            the node we are currently at (i.e. the edge leading to this
+	 * @param int $wordPosition the current position along the input word.
+	 * @param int $node the node we are currently at (i.e. the edge leading to this
 	 *            node is relevant to us).
-	 * @param maxErrors
-	 *            the number of errors still allowed.
-	 * @param currentNodeWordLength
-	 *            the length of the word found along the nodes (this may be
+	 * @param int $maxErrors the number of errors still allowed.
+	 * @param int $currentNodeWordLength the length of the word found along the nodes (this may be
 	 *            different from the actual length due to buffer limits).
-	 * @return the maximal length that can be taken.
+	 * @return int the maximal length that can be taken.
 	 */
-	private int calculateMaxLength(int wordStart, int wordPosition, int node,
-			int maxErrors, int currentNodeWordLength) {
-		edBuffer[0][0] = 0;
-		int currentLength = 1;
-		for (; currentLength <= currentNodeWordLength; ++currentLength) {
-			int best = currentLength;
-			edBuffer[0][currentLength] = currentLength;
-			edBuffer[currentLength][0] = currentLength;
+    private function calculateMaxLength(
+        int $wordStart,
+        int $wordPosition,
+        int $node,
+        int $maxErrors,
+        int $currentNodeWordLength)
+    {
+		$this->edBuffer[0][0] = 0;
+		int $currentLength = 1;
+		for (; $currentLength <= $currentNodeWordLength; ++$currentLength) {
+			int $best = $currentLength;
+			$this->edBuffer[0][$currentLength] = $currentLength;
+			$this->edBuffer[$currentLength][0] = $currentLength;
 
-			if (wordPosition + currentLength >= word.size()) {
+			if ($wordPosition + $currentLength >= $this->word.size()) {
 				break;
 			}
 
 			// deal with case that character may not be matched (sentinel!)
-			Object iChar = word.get(wordPosition + currentLength - 1);
-			Object jChar = word.get(nodeWordBegin[node] + currentLength - 1);
+			Object iChar = $this->word.get($wordPosition + $currentLength - 1);
+			Object jChar = $this->word.get($this->nodeWordBegin[$node] + $currentLength - 1);
 			if (mayNotMatch(iChar) || mayNotMatch(jChar)) {
 				break;
 			}
 
 			// usual matrix completion for edit distance
-			for (int k = 1; k < currentLength; ++k) {
-				best = Math.min(
-						best,
-						fillEDBuffer(k, currentLength, wordPosition,
-								nodeWordBegin[node]));
+			for (int $k = 1; $k < $currentLength; ++$k) {
+				$best = Math.min(
+						$best,
+						fillEDBuffer($k, $currentLength, $wordPosition,
+								$this->nodeWordBegin[$node]));
 			}
-			for (int k = 1; k < currentLength; ++k) {
-				best = Math.min(
-						best,
-						fillEDBuffer(currentLength, k, wordPosition,
-								nodeWordBegin[node]));
+			for (int $k = 1; $k < $currentLength; ++$k) {
+				$best = Math.min(
+						$best,
+						fillEDBuffer($currentLength, $k, $wordPosition,
+								$this->nodeWordBegin[$node]));
 			}
-			best = Math.min(
-					best,
-					fillEDBuffer(currentLength, currentLength, wordPosition,
-							nodeWordBegin[node]));
+			$best = Math.min(
+					$best,
+					fillEDBuffer($currentLength, $currentLength, $wordPosition,
+							$this->nodeWordBegin[$node]));
 
-			if (best > maxErrors
-					|| wordPosition - wordStart + currentLength <= headEquality
-					&& best > 0) {
+			if ($best > $maxErrors
+					|| $wordPosition - $wordStart + $currentLength <= headEquality
+					&& $best > 0) {
 				break;
 			}
 		}
-		--currentLength;
-		return currentLength;
+		--$currentLength;
+		return $currentLength;
 	}
 
-	private void reportClone(int wordBegin, int wordEnd, int currentNode,
-			int nodeWordPos, int nodeWordLength) throws ConQATException {
-		int length = wordEnd - wordBegin;
-		if (length < minLength || nodeWordLength < minLength) {
+    /**
+     * @return void
+     * @throws ConQATException
+     */
+	private function reportClone(int $wordBegin, int $wordEnd, int $currentNode,
+        int $nodeWordPos, int $nodeWordLength)
+    {
+        /** @var int */
+		$length = $wordEnd - $wordBegin;
+		if ($length < minLength || $nodeWordLength < minLength) {
 			return;
 		}
 
 		PairList<Integer, Integer> otherClones = new PairList<Integer, Integer>();
-		findRemainingClones(otherClones, nodeWordLength, currentNode,
-				nodeWordEnd[currentNode] - nodeWordBegin[currentNode]
-				- nodeWordPos, wordBegin);
+		findRemainingClones(otherClones, $nodeWordLength, $currentNode,
+				$this->nodeWordEnd[$currentNode] - $this->nodeWordBegin[$currentNode]
+				- $nodeWordPos, $wordBegin);
 
 		int occurrences = 1 + otherClones.size();
 
 		// check whether we may start from here
-        PhpToken t = (PhpToken) word.get(wordBegin);
-		CloneInfo newInfo = new CloneInfo(length, wordBegin, occurrences, t, otherClones);
-		for (int index = Math.max(0, wordBegin - INDEX_SPREAD + 1); index <= wordBegin; ++index) {
-			List<CloneInfo> existingClones = cloneInfos.getCollection(index);
+        PhpToken t = (PhpToken) $this->word.get($wordBegin);
+		CloneInfo newInfo = new CloneInfo($length, $wordBegin, occurrences, t, otherClones);
+		for (int index = Math.max(0, $wordBegin - INDEX_SPREAD + 1); index <= $wordBegin; ++index) {
+			List<CloneInfo> existingClones = $this->cloneInfos.getCollection(index);
 			if (existingClones != null) {
 				for (CloneInfo cloneInfo : existingClones) {
-					if (cloneInfo.dominates(newInfo, wordBegin - index)) {
+					if (cloneInfo.dominates(newInfo, $wordBegin - index)) {
 						// we already have a dominating clone, so ignore
 						return;
 					}
@@ -531,13 +536,13 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		}
 
 		// report clone
-		//consumer.startCloneClass(length);
-		//consumer.addClone(wordBegin, length);
-		//for (int i = wordBegin; i < length; i++) {
-			//System.out.print(word.get(i) + " ");
+		//consumer.startCloneClass($length);
+		//consumer.addClone($wordBegin, $length);
+		//for (int i = $wordBegin; i < $length; i++) {
+			//System.out.print($this->word.get(i) + " ");
 		//}
-        //PhpToken t = (PhpToken) word.get(wordBegin);
-        //System.out.println("line = " + t.line + ", length = " + length);
+        //PhpToken t = (PhpToken) $this->word.get($wordBegin);
+        //System.out.println("line = " + t.line + ", $length = " + $length);
 
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
@@ -551,22 +556,22 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 		//}
 
 		// add clone to otherClones to avoid getting more duplicates
-		for (int i = wordBegin; i < wordEnd; i += INDEX_SPREAD) {
-			cloneInfos.add(i, new CloneInfo(length - (i - wordBegin), wordBegin, occurrences, t, otherClones));
+		for (int $i = $wordBegin; $i < $wordEnd; $i += INDEX_SPREAD) {
+			$this->cloneInfos.add($i, new CloneInfo($length - ($i - $wordBegin), $wordBegin, occurrences, t, otherClones));
 		}
-        //PhpToken t = (PhpToken) word.get(wordBegin);
-        //System.out.print("line = " + t.line + ", length = " + length + "; ");
+        //PhpToken t = (PhpToken) $this->word.get($wordBegin);
+        //System.out.print("line = " + t.line + ", $length = " + $length + "; ");
 		for (int clone = 0; clone < otherClones.size(); ++clone) {
 			int start = otherClones.getFirst(clone);
 			int otherLength = otherClones.getSecond(clone);
-            //PhpToken s = (PhpToken) word.get(start);
+            //PhpToken s = (PhpToken) $this->word.get(start);
             //System.out.print("start t.line = " + s.line + ", otherlength =  " + otherLength + " ");
             for (int j = 0; j < otherLength; j++) {
-                PhpToken r = (PhpToken) word.get(j + start);
+                PhpToken r = (PhpToken) $this->word.get(j + start);
                 //System.out.print(r.content + " " );
             }
-			for (int i = 0; i < otherLength; i += INDEX_SPREAD) {
-				cloneInfos.add(start + i, new CloneInfo(otherLength - i, wordBegin, occurrences, t, otherClones));
+			for (int $i = 0; $i < otherLength; $i += INDEX_SPREAD) {
+				$this->cloneInfos.add(start + $i, new CloneInfo(otherLength - $i, $wordBegin, occurrences, t, otherClones));
 			}
 		}
         //System.out.println("");
@@ -576,23 +581,19 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	/**
 	 * Fills the edit distance buffer at position (i,j).
 	 * 
-	 * @param i
-	 *            the first index of the buffer.
-	 * @param j
-	 *            the second index of the buffer.
-	 * @param iOffset
-	 *            the offset where the word described by i starts.
-	 * @param jOffset
-	 *            the offset where the word described by j starts.
+	 * @param $i the first index of the buffer.
+	 * @param j the second index of the buffer.
+	 * @param iOffset the offset where the word described by $i starts.
+	 * @param jOffset the offset where the word described by j starts.
 	 * @return the value inserted into the buffer.
 	 */
-	private int fillEDBuffer(int i, int j, int iOffset, int jOffset) {
-		Object iChar = word.get(iOffset + i - 1);
-		Object jChar = word.get(jOffset + j - 1);
+	private int fillEDBuffer(int $i, int j, int iOffset, int jOffset) {
+		Object iChar = $this->word.get(iOffset + $i - 1);
+		Object jChar = $this->word.get(jOffset + j - 1);
 
-		int insertDelete = 1 + Math.min(edBuffer[i - 1][j], edBuffer[i][j - 1]);
-		int change = edBuffer[i - 1][j - 1] + (iChar.equals(jChar) ? 0 : 1);
-		return edBuffer[i][j] = Math.min(insertDelete, change);
+		int insertDelete = 1 + Math.min($this->edBuffer[$i - 1][j], $this->edBuffer[$i][j - 1]);
+		int change = $this->edBuffer[$i - 1][j - 1] + (iChar.equals(jChar) ? 0 : 1);
+		return $this->edBuffer[$i][j] = Math.min(insertDelete, change);
 	}
 
 	/**
@@ -600,23 +601,23 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	 * remaining clones.
 	 * 
 	 * @param clonePositions the clone positions being filled (start position and length)
-	 * @param nodeWordLength the length of the word along the nodes.
-	 * @param currentNode the node we are currently at.
+	 * @param $nodeWordLength the length of the word along the nodes.
+	 * @param $currentNode the node we are currently at.
 	 * @param distance the distance along the word leading to the current node.
 	 * @param wordStart the start of the currently searched word.
 	 */
 	private void findRemainingClones(PairList<Integer, Integer> clonePositions,
-			int nodeWordLength, int currentNode, int distance, int wordStart) {
-		for (int nextNode = nodeChildFirst[currentNode]; nextNode >= 0; nextNode = nodeChildNext[nextNode]) {
-			int node = nodeChildNode[nextNode];
-			findRemainingClones(clonePositions, nodeWordLength, node, distance
-					+ nodeWordEnd[node] - nodeWordBegin[node], wordStart);
+			int $nodeWordLength, int $currentNode, int distance, int $wordStart) {
+		for (int nextNode = $this->nodeChildFirst[$currentNode]; nextNode >= 0; nextNode = $this->nodeChildNext[nextNode]) {
+			$node = $this->nodeChildNode[nextNode];
+			findRemainingClones(clonePositions, $nodeWordLength, $node, distance
+					+ $this->nodeWordEnd[$node] - $this->nodeWordBegin[$node], $wordStart);
 		}
 
-		if (nodeChildFirst[currentNode] < 0) {
-			int start = word.size() - distance - nodeWordLength;
-			if (start != wordStart) {
-				clonePositions.add(start, nodeWordLength);
+		if ($this->nodeChildFirst[$currentNode] < 0) {
+			int start = $this->word.size() - distance - $nodeWordLength;
+			if (start != $wordStart) {
+				clonePositions.add(start, $nodeWordLength);
 			}
 		}
 	}
@@ -637,45 +638,6 @@ abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 	@SuppressWarnings("unused")
 	protected void reportBufferShortage(int leafStart, int leafLength) {
 		// empty base implementation
-	}
-
-	/** Stores information on a clone. */
-	private static class CloneInfo {
-
-		/** Length of the clone in tokens. */
-		private final int length;
-
-        /** Position in word list */
-        public final int position;
-
-		/** Number of occurrences of the clone. */
-		private final int occurrences;
-
-        public final PhpToken token;
-
-        /** Related clones */
-        public final PairList<Integer, Integer> otherClones;
-
-		/** Constructor. */
-		public CloneInfo(int length, int position, int occurrences, PhpToken token, PairList<Integer, Integer> otherClones) {
-			this.length = length;
-			this.position = position;
-			this.occurrences = occurrences;
-            this.token = token;
-            this.otherClones = otherClones;
-		}
-
-		/**
-		 * Returns whether this clone info dominates the given one, i.e. whether
-		 * both {@link #length} and {@link #occurrences} s not smaller.
-		 * 
-		 * @param later
-		 *            The amount the given clone starts later than the "this"
-		 *            clone.
-		 */
-		public boolean dominates(CloneInfo ci, int later) {
-			return length - later >= ci.length && occurrences >= ci.occurrences;
-		}
 	}
 
     /*
