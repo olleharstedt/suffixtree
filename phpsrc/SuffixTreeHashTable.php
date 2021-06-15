@@ -194,9 +194,12 @@ class SuffixTreeHashTable
      * @return void
 	 * @throws ArrayIndexOutOfBoundsException if any of the given arrays was too small.
 	 */
-    public function extractChildLists(array $nodeFirstIndex, array $nodeNextIndex, array $nodeChild)
+    public function extractChildLists(array &$nodeFirstIndex, array &$nodeNextIndex, array &$nodeChild)
     {
-		Arrays.fill($nodeFirstIndex, -1);
+		// Instead of Arrays.fill($nodeFirstIndex, -1);
+        foreach ($nodeFirstIndex as $k => $v) {
+            $nodeFirstIndex[$k] = -1;
+        }
 		$free = 0;
 		for ($i = 0; $i < $this->tableSize; ++$i) {
 			if ($this->keyChars[$i] != null) {
