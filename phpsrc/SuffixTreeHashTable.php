@@ -79,7 +79,8 @@ class SuffixTreeHashTable
      *
      * @param int $numNodes
 	 */
-	public function __construct (int $numNodes) {
+    public function __construct (int $numNodes)
+    {
 		$minSize = (int) ceil(1.5 * $numNodes);
 		$sizeIndex = 0;
 		while ($this->allowedSizes[$sizeIndex] < $minSize) {
@@ -95,57 +96,69 @@ class SuffixTreeHashTable
 	/**
 	 * Returns the position of the (node,char) key in the hash map or the
 	 * position to insert it into if it is not yet in.
+     *
+     * @param int $keyNode
+     * @param JavaObjectInterface $keyChar
+     * @return int
 	 */
-	private int hashFind(int keyNode, Object keyChar) {
+    private int hashFind(int keyNode, JavaObjectInterface $keyChar)
+    {
 		++$this->_numFind;
-		int hash = keyChar.hashCode();
-		int pos = posMod(primaryHash(keyNode, hash));
-		int secondary = secondaryHash(keyNode, hash);
-		while ($this->keyChars[pos] != null) {
-			if ($this->keyNodes[pos] == keyNode && keyChar.equals($this->keyChars[pos])) {
+		$hash = $keyChar->hashCode();
+		$pos = $this->posMod(primaryHash($keyNode, $hash));
+		$secondary = secondaryHash($keyNode, $hash);
+		while ($this->keyChars[$pos] != null) {
+			if ($this->keyNodes[$pos] == $keyNode && $keyChar->equals($this->keyChars[$pos])) {
 				break;
 			}
 			++$this->_numColl;
-			pos = (pos + secondary) % $this->tableSize;
+			$pos = ($pos + $secondary) % $this->tableSize;
 		}
-		return pos;
+		return $pos;
 	}
 
 	/**
 	 * Returns the next node for the given (node, character) key pair or a
 	 * negative value if no next node is stored for this key.
+     *
+     * @return int
 	 */
-	public int get(int keyNode, Object keyChar) {
-		int pos = hashFind(keyNode, keyChar);
-		if ($this->keyChars[pos] == null) {
+    public function get(int $keyNode, JavaObjectInterface $keyChar)
+    {
+		$pos = $this->hashFind($keyNode, $keyChar);
+		if ($this->keyChars[$pos] == null) {
 			return -1;
 		}
-		return $this->resultNodes[pos];
+		return $this->resultNodes[$pos];
 	}
 
-	/** Inserts the given result node for the (node, character) key pair. */
-	public void put(int keyNode, Object keyChar, int resultNode) {
-		int pos = hashFind(keyNode, keyChar);
-		if ($this->keyChars[pos] == null) {
+    /** Inserts the given result node for the (node, character) key pair.
+        * @return void */
+	public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode) {
+		$pos = hashFind($keyNode, $keyChar);
+		if ($this->keyChars[$pos] == null) {
 			++_numStoredNodes;
-			$this->keyChars[pos] = keyChar;
-			$this->keyNodes[pos] = keyNode;
+			$this->keyChars[$pos] = $keyChar;
+			$this->keyNodes[$pos] = $keyNode;
 		}
-		$this->resultNodes[pos] = resultNode;
+		$this->resultNodes[$pos] = $resultNode;
 	}
 
-	/** Returns the primary hash value for a (node, character) key pair. */
-	private int primaryHash(int keyNode, int keyCharHash) {
-		return keyCharHash ^ (13 * keyNode);
+    /** Returns the primary hash value for a (node, character) key pair.
+        * @return int */
+	private function primaryHash(int $keyNode, int $keyCharHash) {
+		return $keyCharHash ^ (13 * $keyNode);
 	}
 
-	/** Returns the secondary hash value for a (node, character) key pair. */
-	private int secondaryHash(int keyNode, int keyCharHash) {
-		int result = posMod((keyCharHash ^ (1025 * keyNode)));
-		if (result == 0) {
+    /** Returns the secondary hash value for a (node, character) key pair.
+        * @return int */
+    private function secondaryHash(int $keyNode, int $keyCharHash)
+    {
+		$result = $this->posMod(($keyCharHash ^ (1025 * $keyNode)));
+		if ($result == 0) {
 			return 2;
 		}
-		return result;
+		return $result;
 	}
 
 	/**
@@ -153,7 +166,8 @@ class SuffixTreeHashTable
 	 * {@link #tableSize}.
      * @return int
 	 */
-	private function posMod(int $x) {
+    private function posMod(int $x)
+    {
 		$x %= $this->tableSize;
 		if ($x < 0) {
 			$x += $this->tableSize;
@@ -171,25 +185,25 @@ class SuffixTreeHashTable
 	 * The method is package visible, as it is tighly coupled to the
 	 * {@link SuffixTree} class.
 	 * 
-	 * @param nodeFirstIndex an array giving for each node the index where the first child
+	 * @param int[] nodeFirstIndex an array giving for each node the index where the first child
 	 *            will be stored (or -1 if it has no children).
-	 * @param nodeNextIndex this array gives the next index of the child list or -1 if
+	 * @param int[] nodeNextIndex this array gives the next index of the child list or -1 if
 	 *            this is the last one.
-	 * @param nodeChild this array stores the actual name (=number) of the mode in the
+	 * @param int[] nodeChild this array stores the actual name (=number) of the mode in the
 	 *            child list.
      * @return void
 	 * @throws ArrayIndexOutOfBoundsException if any of the given arrays was too small.
 	 */
-	public function extractChildLists(int[] nodeFirstIndex, int[] nodeNextIndex,
-			int[] nodeChild) {
-		Arrays.fill(nodeFirstIndex, -1);
-		int free = 0;
-		for (int i = 0; i < $this->tableSize; ++i) {
-			if ($this->keyChars[i] != null) {
-				// insert $this->keyNodes[i] -> $this->resultNodes[i]
-				nodeChild[free] = $this->resultNodes[i];
-				nodeNextIndex[free] = nodeFirstIndex[$this->keyNodes[i]];
-				nodeFirstIndex[$this->keyNodes[i]] = free++;
+    public function extractChildLists(array $nodeFirstIndex, array $nodeNextIndex, array $nodeChild)
+    {
+		Arrays.fill($nodeFirstIndex, -1);
+		$free = 0;
+		for ($i = 0; $i < $this->tableSize; ++$i) {
+			if ($this->keyChars[$i] != null) {
+				// insert $this->keyNodes[$i] -> $this->resultNodes[$i]
+				$nodeChild[$free] = $this->resultNodes[$i];
+				$nodeNextIndex[$free] = $nodeFirstIndex[$this->keyNodes[$i]];
+				$nodeFirstIndex[$this->keyNodes[$i]] = $free++;
 			}
 		}
 	}
