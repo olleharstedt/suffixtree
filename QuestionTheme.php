@@ -827,7 +827,6 @@ class QuestionTheme extends LSActiveRecord
         if (\PHP_VERSION_ID < 80000) {
             $bOldEntityLoaderState = libxml_disable_entity_loader(true);
         }
-
         $sQuestionConfigFilePath = App()->getConfig('rootdir') . DIRECTORY_SEPARATOR . $sConfigPath;
         if (!file_exists($sQuestionConfigFilePath)) {
             throw new Exception('Found no config.xml file at ' . $sQuestionConfigFilePath);

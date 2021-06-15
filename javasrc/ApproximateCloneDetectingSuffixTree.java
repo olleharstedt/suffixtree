@@ -203,7 +203,7 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
 				for (CloneInfo ci : existingClones) {
                     // length = number of tokens
                     // TODO: min token length
-                    if (ci.length > 50) {
+                    if (ci.length > 25) {
                         //allClones.add(ci);
                         //lengths.add(ci.length);
                         //tree.add(ci);
