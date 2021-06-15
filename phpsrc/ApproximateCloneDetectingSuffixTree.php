@@ -42,7 +42,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
      * The number of leaves reachable from the given node (1 for leaves).
      * @var int[]
      * */
-	private final $leafCount;
+	private $leafCount;
 
     /**
      * This is the distance between two entries in the {@link #cloneInfos} map.
@@ -235,22 +235,25 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
                 foreach ($existingClones as $ci) {
                     // length = number of tokens
                     // TODO: min token length
-                    if ($ci.length > 50) {
+                    if ($ci->length > 50) {
                         //allClones.add($ci);
                         //$lengths.add($ci.length);
                         //tree.add($ci);
-                        CloneInfo previousCi = $map[$ci.token.line];
-                        if (previousCi == null) {
-                            $map.put($ci.token.line, $ci);
-                        } else if ($ci.length > previousCi.length) {
-                            $map.put($ci.token.line, $ci);
+                        /** @var CloneInfo */
+                        $previousCi = $map[$ci->token->line];
+                        if ($previousCi == null) {
+                            $map.put($ci->token->line, $ci);
+                        } else if ($ci->length > $previousCi->length) {
+                            $map.put($ci->token->line, $ci);
                         }
                         //System.out.println("length = " + $ci.length + ", occurrences = " + $ci.occurrences);
                         //System.out.println("line = " + $ci.token.line);
-                        List<Integer> others = $ci.otherClones.extractFirstList();
-                        for (int j = 0; j < others.size(); j++) {
-                            int otherStart = others.get(j);
-                            PhpToken t = (PhpToken) $this->word.get(otherStart);
+                        /** @var int[] */
+                        $others = $ci->otherClones->extractFirstList();
+                        for ($j = 0; $j < count($others); $j++) {
+                            $otherStart = $others[$j];
+                            /** @var PhpToken */
+                            $t = $this->word[$otherStart];
                             //System.out.println("\tother clone start = " + t.line);
                         }
                     }
@@ -276,17 +279,20 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             //System.out.println($ci.length);
         //}
 
-        List<CloneInfo> list = new ArrayList<CloneInfo>($map.values());
-        Collections.sort(list, (a, b) -> b.length - a.length);
+        /** @var CloneInfo[] */
+        $values = array_values($map);
+        //Collections.sort($values, (a, b) -> b.length - a.length);
+        usort($values, function ($a, $b) { return $b->length - $a->length;});
         //Set set = $map.entrySet();
-        Iterator itr = list.iterator();
+        //Iterator itr = $values.iterator();
         System.out.printf(
             "\nFound %d clones with %d duplicated lines in %d files:\n\n",
-            list.size(),
+            count($values),
             0,  // TODO: Fix
             0
         );
         // TODO: Filter overlapping clones.
+        /*
         while(itr.hasNext()) {
         //for (int i = 0; i < keys.size(); i++) {
             //Map.Entry entry = (Map.Entry) itr.next();  
@@ -321,6 +327,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             }
             System.out.println("");
         }
+         */
 	}
 
 	/**
@@ -367,21 +374,21 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		$best = $maxErrors + 42;
 		$iBest = 0;
 		$jBest = 0;
-		for (int $k = 0; $k <= $currentLength; ++$k) {
-			int $i = $currentLength - $k;
-			int j = $currentLength;
-			if ($this->edBuffer[$i][j] < $best) {
-				$best = $this->edBuffer[$i][j];
+		for ($k = 0; $k <= $currentLength; ++$k) {
+			$i = $currentLength - $k;
+			$j = $currentLength;
+			if ($this->edBuffer[$i][$j] < $best) {
+				$best = $this->edBuffer[$i][$j];
 				$iBest = $i;
-				$jBest = j;
+				$jBest = $j;
 			}
 
 			$i = $currentLength;
-			j = $currentLength - $k;
-			if ($this->edBuffer[$i][j] < $best) {
-				$best = $this->edBuffer[$i][j];
+			$j = $currentLength - $k;
+			if ($this->edBuffer[$i][$j] < $best) {
+				$best = $this->edBuffer[$i][$j];
 				$iBest = $i;
-				$jBest = j;
+				$jBest = $j;
 			}
 		}
 
@@ -465,9 +472,10 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         int $currentNodeWordLength)
     {
 		$this->edBuffer[0][0] = 0;
-		int $currentLength = 1;
+		$currentLength = 1;
 		for (; $currentLength <= $currentNodeWordLength; ++$currentLength) {
-			int $best = $currentLength;
+            /** @var int */
+			$best = $currentLength;
 			$this->edBuffer[0][$currentLength] = $currentLength;
 			$this->edBuffer[$currentLength][0] = $currentLength;
 
@@ -476,32 +484,32 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			}
 
 			// deal with case that character may not be matched (sentinel!)
-			Object iChar = $this->word.get($wordPosition + $currentLength - 1);
-			Object jChar = $this->word.get($this->nodeWordBegin[$node] + $currentLength - 1);
-			if (mayNotMatch(iChar) || mayNotMatch(jChar)) {
+			$iChar = $this->word[$wordPosition + $currentLength - 1];
+			$jChar = $this->word[$this->nodeWordBegin[$node] + $currentLength - 1];
+			if ($this->mayNotMatch($iChar) || $this->mayNotMatch($jChar)) {
 				break;
 			}
 
 			// usual matrix completion for edit distance
-			for (int $k = 1; $k < $currentLength; ++$k) {
+			for ($k = 1; $k < $currentLength; ++$k) {
 				$best = Math.min(
 						$best,
 						fillEDBuffer($k, $currentLength, $wordPosition,
 								$this->nodeWordBegin[$node]));
 			}
-			for (int $k = 1; $k < $currentLength; ++$k) {
-				$best = Math.min(
+			for ($k = 1; $k < $currentLength; ++$k) {
+				$best = min(
 						$best,
-						fillEDBuffer($currentLength, $k, $wordPosition,
+						$this->fillEDBuffer($currentLength, $k, $wordPosition,
 								$this->nodeWordBegin[$node]));
 			}
-			$best = Math.min(
+			$best = min(
 					$best,
-					fillEDBuffer($currentLength, $currentLength, $wordPosition,
+					$this->fillEDBuffer($currentLength, $currentLength, $wordPosition,
 							$this->nodeWordBegin[$node]));
 
 			if ($best > $maxErrors
-					|| $wordPosition - $wordStart + $currentLength <= headEquality
+					|| $wordPosition - $wordStart + $currentLength <= $this->headEquality
 					&& $best > 0) {
 				break;
 			}
@@ -524,22 +532,30 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		}
 
 		//PairList<Integer, Integer> otherClones = new PairList<Integer, Integer>();
+        /** @var array<array{int, int}> */
 		$otherClones = [];
-		$this->findRemainingClones($otherClones, $nodeWordLength, $currentNode,
-				$this->nodeWordEnd[$currentNode] - $this->nodeWordBegin[$currentNode]
-				- $nodeWordPos, $wordBegin);
+        $this->findRemainingClones(
+            $otherClones,
+            $nodeWordLength,
+            $currentNode,
+            $this->nodeWordEnd[$currentNode] - $this->nodeWordBegin[$currentNode] - $nodeWordPos,
+            $wordBegin
+        );
 
-		int occurrences = 1 + $otherClones.size();
+		$occurrences = 1 + count($otherClones);
 
 		// check whether we may start from here
-        PhpToken t = (PhpToken) $this->word.get($wordBegin);
-		CloneInfo newInfo = new CloneInfo($length, $wordBegin, occurrences, t, $otherClones);
-		for (int $index = Math.max(0, $wordBegin - INDEX_SPREAD + 1); $index <= $wordBegin; ++$index) {
+        /** @var PhpToken */
+        $t = $this->word[$wordBegin];
+        /** @var CloneInfo */
+		$newInfo = new CloneInfo($length, $wordBegin, $occurrences, $t, $otherClones);
+		for ($index = max(0, $wordBegin - $this->INDEX_SPREAD + 1); $index <= $wordBegin; ++$index) {
             /** @var CloneInfo */
 			$existingClones = $this->cloneInfos.getCollection($index);
 			if ($existingClones != null) {
-				for (CloneInfo cloneInfo : $existingClones) {
-					if (cloneInfo.dominates(newInfo, $wordBegin - $index)) {
+				//for (CloneInfo cloneInfo : $existingClones) {
+                foreach ($existingClones as $cloneInfo) {
+					if ($cloneInfo->dominates($newInfo, $wordBegin - $index)) {
 						// we already have a dominating clone, so ignore
 						return;
 					}
@@ -556,10 +572,10 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         //PhpToken t = (PhpToken) $this->word.get($wordBegin);
         //System.out.println("line = " + t.line + ", $length = " + $length);
 
-		for (int clone = 0; clone < $otherClones.size(); ++clone) {
-			int start = $otherClones.getFirst(clone);
-			int otherLength = $otherClones.getSecond(clone);
-			//consumer.addClone(start, otherLength);
+		for ($clone = 0; $clone < count($otherClones); ++$clone) {
+			$start = $otherClones.getFirst($clone);
+			$otherLength = $otherClones.getSecond($clone);
+			//consumer.addClone($start, $otherLength);
 		}
 
 		// is this clone actually relevant?
@@ -568,22 +584,24 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		//}
 
 		// add clone to $otherClones to avoid getting more duplicates
-		for (int $i = $wordBegin; $i < $wordEnd; $i += INDEX_SPREAD) {
-			$this->cloneInfos[$i][] = new CloneInfo($length - ($i - $wordBegin), $wordBegin, occurrences, t, $otherClones);
+		for ($i = $wordBegin; $i < $wordEnd; $i += $this->INDEX_SPREAD) {
+			$this->cloneInfos[$i][] = new CloneInfo($length - ($i - $wordBegin), $wordBegin, $occurrences, $t, $otherClones);
 		}
         //PhpToken t = (PhpToken) $this->word.get($wordBegin);
         //System.out.print("line = " + t.line + ", $length = " + $length + "; ");
 		for ($clone = 0; $clone < count($otherClones); ++$clone) {
-			$start = $otherClones.getFirst($clone);
-			$otherLength = $otherClones.getSecond($clone);
+			$start = $otherClones->getFirst($clone);
+			$otherLength = $otherClones->getSecond($clone);
             //PhpToken s = (PhpToken) $this->word.get($start);
             //System.out.print("$start t.line = " + s.line + ", $otherlength =  " + $otherLength + " ");
-            for (int j = 0; j < $otherLength; j++) {
-                PhpToken r = (PhpToken) $this->word.get(j + $start);
-                //System.out.print(r.content + " " );
+            for ($j = 0; $j < $otherLength; $j++) {
+                /** @var PhpToken */
+                $r = $this->word[$j + $start];
+                //System.out.print($r.content + " " );
             }
-			for (int $i = 0; $i < $otherLength; $i += INDEX_SPREAD) {
-				$this->cloneInfos.add($start + $i, new CloneInfo($otherLength - $i, $wordBegin, occurrences, t, $otherClones));
+			for ($i = 0; $i < $otherLength; $i += $this->INDEX_SPREAD) {
+				//$this->cloneInfos.add($start + $i, new CloneInfo($otherLength - $i, $wordBegin, occurrences, t, $otherClones));
+				$this->cloneInfos[$start + $i][] = new CloneInfo($otherLength - $i, $wordBegin, occurrences, t, $otherClones);
 			}
 		}
         //System.out.println("");
@@ -593,19 +611,22 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	/**
 	 * Fills the edit distance buffer at position (i,j).
 	 * 
-	 * @param $i the first index of the buffer.
-	 * @param j the second index of the buffer.
-	 * @param iOffset the offset where the word described by $i starts.
-	 * @param jOffset the offset where the word described by j starts.
-	 * @return the value inserted into the buffer.
+	 * @param int $i the first index of the buffer.
+	 * @param int $j the second index of the buffer.
+	 * @param int $iOffset the offset where the word described by $i starts.
+	 * @param int $jOffset the offset where the word described by $j starts.
+	 * @return int the value inserted into the buffer.
 	 */
-	private int fillEDBuffer(int $i, int j, int iOffset, int jOffset) {
-		Object iChar = $this->word.get(iOffset + $i - 1);
-		Object jChar = $this->word.get(jOffset + j - 1);
+    private function fillEDBuffer(int $i, int $j, int $iOffset, int $jOffset)
+    {
+        /** @var JavaObjectInterface */
+		$iChar = $this->word[$iOffset + $i - 1];
+        /** @var JavaObjectInterface */
+		$jChar = $this->word[$jOffset + $j - 1];
 
-		int insertDelete = 1 + Math.min($this->edBuffer[$i - 1][j], $this->edBuffer[$i][j - 1]);
-		int change = $this->edBuffer[$i - 1][j - 1] + (iChar.equals(jChar) ? 0 : 1);
-		return $this->edBuffer[$i][j] = Math.min(insertDelete, change);
+		$insertDelete = 1 + min($this->edBuffer[$i - 1][$j], $this->edBuffer[$i][$j - 1]);
+		$change = $this->edBuffer[$i - 1][$j - 1] + ($iChar->equals($jChar) ? 0 : 1);
+		return $this->edBuffer[$i][$j] = min($insertDelete, $change);
 	}
 
 	/**
@@ -620,22 +641,22 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
      * @return void
 	 */
     private function findRemainingClones(
-        array $clonePositions,
+        array &$clonePositions,
         int $nodeWordLength,
         int $currentNode,
         int $distance,
         int $wordStart)
     {
-		for (int nextNode = $this->nodeChildFirst[$currentNode]; nextNode >= 0; nextNode = $this->nodeChildNext[nextNode]) {
-			$node = $this->nodeChildNode[nextNode];
+		for ($nextNode = $this->nodeChildFirst[$currentNode]; $nextNode >= 0; $nextNode = $this->nodeChildNext[$nextNode]) {
+			$node = $this->nodeChildNode[$nextNode];
 			$this->findRemainingClones($clonePositions, $nodeWordLength, $node, $distance
 					+ $this->nodeWordEnd[$node] - $this->nodeWordBegin[$node], $wordStart);
 		}
 
 		if ($this->nodeChildFirst[$currentNode] < 0) {
-			int start = $this->word.size() - $distance - $nodeWordLength;
-			if (start != $wordStart) {
-				$clonePositions.add(start, $nodeWordLength);
+			$start = count($this->word) - $distance - $nodeWordLength;
+			if ($start != $wordStart) {
+				$clonePositions[] = [$start, $nodeWordLength];
 			}
 		}
 	}
@@ -644,7 +665,11 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	 * This should return true, if the provided character is not allowed to
 	 * match with anything else (e.g. is a sentinel).
 	 */
-	protected abstract boolean mayNotMatch(Object character);
+	//protected abstract boolean mayNotMatch(Object character);
+    protected function mayNotMatch(JavaObjectInterface $character)
+    {
+        return $character instanceof Sentinel;
+    }
 
 	/**
 	 * This method is called whenever the {@link #MAX_LENGTH} is to small and
@@ -653,10 +678,13 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	 * {@link #MAX_LENGTH} and potentially minor parts of such a clone might be
 	 * lost.
 	 */
-	@SuppressWarnings("unused")
-	protected void reportBufferShortage(int leafStart, int leafLength) {
+	//@SuppressWarnings("unused")
+	//protected void reportBufferShortage(int leafStart, int leafLength) {
 		// empty base implementation
-	}
+	//}
+    protected function reportBufferShortage(int $leafStart, int $leafLength) {
+        echo "Encountered buffer shortage: " . $leafStart . " " . $leafLength . "\n";
+    }
 
     /*
 	protected class CloneConsumer implements ICloneReporter {

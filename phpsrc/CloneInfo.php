@@ -23,7 +23,7 @@ class CloneInfo
 
     /** Length of the clone in tokens.
         * @var int */
-    private $length;
+    public $length;
 
     /** Position in word list
         * @var int */
