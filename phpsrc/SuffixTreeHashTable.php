@@ -101,7 +101,7 @@ class SuffixTreeHashTable
      * @param JavaObjectInterface $keyChar
      * @return int
 	 */
-    private int hashFind(int keyNode, JavaObjectInterface $keyChar)
+    private function hashFind(int $keyNode, JavaObjectInterface $keyChar)
     {
 		++$this->_numFind;
 		$hash = $keyChar->hashCode();
@@ -137,7 +137,7 @@ class SuffixTreeHashTable
 	public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode) {
 		$pos = hashFind($keyNode, $keyChar);
 		if ($this->keyChars[$pos] == null) {
-			++_numStoredNodes;
+			++$this->_numStoredNodes;
 			$this->keyChars[$pos] = $keyChar;
 			$this->keyNodes[$pos] = $keyNode;
 		}
@@ -219,9 +219,9 @@ class SuffixTreeHashTable
 	public void _printDebugInfo() {
 		System.err.println("STHashMap info: ");
 		System.err.println("  Table size: " + tableSize);
-		System.err.println("  Contained entries: " + _numStoredNodes);
+		System.err.println("  Contained entries: " + $this->_numStoredNodes);
 		System.err.println("  Fill factor: "
-				+ ((double) _numStoredNodes / tableSize));
+				+ ((double) $this->_numStoredNodes / tableSize));
 		System.err.println("  Number of finds: " + $this->_numFind);
 		System.err.println("  Number of collisions: " + $this->_numColl);
 	}
