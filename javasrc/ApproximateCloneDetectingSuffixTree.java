@@ -112,6 +112,12 @@ public abstract class ApproximateCloneDetectingSuffixTree extends SuffixTree {
         //String input = "bla bla bla test bla bla bla bla bla mooooo something else";
         //List<Character> word = SuffixTreeTest.stringToList(input);
 
+        //String a = "LimeSurvey";
+        //a.chars().forEach(c -> System.out.println(0 + c));
+        //System.out.println(a.hashCode());
+        System.out.println(10 ^ 0);
+        System.exit(0);
+
         List<PhpToken> word = new ArrayList<PhpToken>();
 
         String filename = "tokens.json";

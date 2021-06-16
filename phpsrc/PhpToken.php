@@ -25,8 +25,35 @@ class PhpToken implements JavaObjectInterface
     /**
      * @return int
      */
-    public function hashCode(): int {
-        return (int) crc32($this->content);
+    public function hashCode(): int
+    {
+        //static $cashedHashCode = null;
+        //if ($cashedHashCode !== null) {
+            //return $cashedHashCode;
+        //}
+
+        $value = $this->content;
+        $hashCode = 0;
+        $offset= 0;
+        $limit = strlen($value) + $offset;
+        for ($i = $offset; $i < $limit; $i++) {
+            $hashCode = $hashCode * 31 + ord($value[$i]);
+            //if (is_float($hashCode)) {
+                //die('nooo');
+            //}
+            // NB: Simulate 32-bit int.
+            // @see https://stackoverflow.com/questions/15557407/how-to-use-a-32bit-integer-on-a-64bit-installation-of-php
+            //$hashCode = $hashCode & 0xFFFFFFFF;
+            $hashCode = $hashCode & 0xFFFFFFFF;
+            if ($hashCode & 0x80000000) {
+                $hashCode = $hashCode & ~0x80000000;
+                $hashCode = -2147483648 + $hashCode;
+            }
+
+        }
+        //$cashedHashCode = $hashCode;
+        return $hashCode;
+        //return (int) crc32($this->content);
         //return $this->content->hashCode();
         //return $tokenCode;
     }
@@ -42,6 +69,10 @@ class PhpToken implements JavaObjectInterface
      * @return string
      */
     public function toString() {
-        return $tokenName;
+        return $this->tokenName;
+    }
+
+    public function __tostring() {
+        return $this->tokenName;
     }
 }

@@ -272,11 +272,12 @@ class SuffixTree
 	 * @param int $refWordEnd one after the end index for the word of the reference pair.
      * @return void
 	 */
-	private function canonize(int $refWordEnd) {
-		if ($this->currentNode == -1) {
+    private function canonize(int $refWordEnd): void
+    {
+		if ($this->currentNode === -1) {
 			// explicitly handle trap state
 			$this->currentNode = 0;
-			++$this->refWordBegin;
+			$this->refWordBegin++;
 		}
 
 		if ($refWordEnd <= $this->refWordBegin) {
@@ -285,18 +286,27 @@ class SuffixTree
 		}
 
         /** @var int */
-		$next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
+        $next = $this->nextNode->get(
+            $this->currentNode,
+            $this->word[$this->refWordBegin]
+        );
+        //echo $next . ' ';
 		while ($this->nodeWordEnd[$next] - $this->nodeWordBegin[$next] <= $refWordEnd
 				- $this->refWordBegin) {
-			$this->refWordBegin += $this->nodeWordEnd[$next] - $this->nodeWordBegin[$next];
-			$this->currentNode = $next;
-			if ($refWordEnd > $this->refWordBegin) {
-				$next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
-			} else {
-				break;
-			}
-		}
-	}
+                $this->refWordBegin += $this->nodeWordEnd[$next] - $this->nodeWordBegin[$next];
+                $this->currentNode = $next;
+                if ($refWordEnd > $this->refWordBegin) {
+                    $next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
+                    if ($next === -1) {
+                        //echo $this->currentNode . ' ';
+                        //echo $this->refWordBegin . ' ';
+                        throw new Exception("Abort");
+                    }
+                } else {
+                    break;
+                }
+        }
+    }
 
 	/**
 	 * This method makes sure the child lists are filled (required for

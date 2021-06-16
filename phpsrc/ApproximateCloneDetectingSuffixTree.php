@@ -238,7 +238,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
                 foreach ($existingClones as $ci) {
                     // length = number of tokens
                     // TODO: min token length
-                    if ($ci->length > 10) {
+                    if ($ci->length > 25) {
                         //allClones.add($ci);
                         //$lengths.add($ci.length);
                         //tree.add($ci);

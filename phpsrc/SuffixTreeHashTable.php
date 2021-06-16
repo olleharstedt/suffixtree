@@ -84,7 +84,7 @@ class SuffixTreeHashTable
 		$minSize = (int) ceil(1.5 * $numNodes);
 		$sizeIndex = 0;
 		while ($this->allowedSizes[$sizeIndex] < $minSize) {
-			++$sizeIndex;
+			$sizeIndex++;
 		}
 		$this->tableSize = $this->allowedSizes[$sizeIndex];
 
@@ -106,8 +106,11 @@ class SuffixTreeHashTable
 		++$this->_numFind;
         /** @var int */
 		$hash = $keyChar->hashCode();
+        //echo $keyChar->content . ' ';
+        //echo $hash . ' ';
         /** @var int */
-		$pos = $this->posMod((int) $this->primaryHash($keyNode, $hash));
+		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
+        echo $pos . ' ';
         /** @var int */
 		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] !== null) {
@@ -116,7 +119,9 @@ class SuffixTreeHashTable
 			}
 			++$this->_numColl;
 			$pos = ($pos + $secondary) % $this->tableSize;
+            //echo $pos . ' ';
 		}
+        //echo $pos . ' ';
 		return $pos;
 	}
 
@@ -126,10 +131,10 @@ class SuffixTreeHashTable
      *
      * @return int
 	 */
-    public function get(int $keyNode, JavaObjectInterface $keyChar)
+    public function get(int $keyNode, JavaObjectInterface $keyChar): int
     {
 		$pos = $this->hashFind($keyNode, $keyChar);
-		if ($this->keyChars[$pos] == null) {
+		if ($this->keyChars[$pos] === null) {
 			return -1;
 		}
 		return $this->resultNodes[$pos];
@@ -137,7 +142,8 @@ class SuffixTreeHashTable
 
     /** Inserts the given result node for the (node, character) key pair.
         * @return void */
-	public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode) {
+    public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode)
+    {
 		$pos = $this->hashFind($keyNode, $keyChar);
 		if ($this->keyChars[$pos] == null) {
 			++$this->_numStoredNodes;
@@ -151,7 +157,8 @@ class SuffixTreeHashTable
         * @return int */
     private function primaryHash(int $keyNode, int $keyCharHash)
     {
-		return $keyCharHash ** (13 * $keyNode);
+		$res =  $keyCharHash ^ (13 * $keyNode);
+        return $res;
 	}
 
     /**
@@ -161,7 +168,7 @@ class SuffixTreeHashTable
      */
     private function secondaryHash(int $keyNode, int $keyCharHash)
     {
-		$result = $this->posMod((int) ($keyCharHash ** (1025 * $keyNode)));
+		$result = $this->posMod(($keyCharHash ^ (1025 * $keyNode)));
 		if ($result == 0) {
 			return 2;
 		}
@@ -209,7 +216,7 @@ class SuffixTreeHashTable
         }
 		$free = 0;
 		for ($i = 0; $i < $this->tableSize; ++$i) {
-			if ($this->keyChars[$i] != null) {
+			if ($this->keyChars[$i] !== null) {
 				// insert $this->keyNodes[$i] -> $this->resultNodes[$i]
 				$nodeChild[$free] = $this->resultNodes[$i];
 				$nodeNextIndex[$free] = $nodeFirstIndex[$this->keyNodes[$i]];
