@@ -21,19 +21,27 @@
 class CloneInfo
 {
 
-    /** Length of the clone in tokens.
-        * @var int */
+    /**
+     * Length of the clone in tokens.
+     * @var int
+     */
     public $length;
 
-    /** Position in word list
-        * @var int */
+    /**
+     * Position in word list
+     * @var int
+     */
     public $position;
 
-    /** Number of occurrences of the clone.
-        * @var int */
+    /**
+     * Number of occurrences of the clone.
+     * @var int
+     */
     private $occurrences;
 
-    /** @var PhpToken */
+    /**
+     * @var PhpToken
+     */
     public $token;
 
     /**
@@ -60,7 +68,8 @@ class CloneInfo
      * @param later The amount the given clone starts later than the "this" clone.
      * @return boolean
      */
-    public function dominates(CloneInfo $ci, int $later) {
+    public function dominates(CloneInfo $ci, int $later): bool
+    {
         return $this->length - $later >= $ci->length && $this->occurrences >= $ci->occurrences;
     }
 }

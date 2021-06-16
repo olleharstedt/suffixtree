@@ -238,12 +238,12 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
                 foreach ($existingClones as $ci) {
                     // length = number of tokens
                     // TODO: min token length
-                    if ($ci->length > 50) {
+                    if ($ci->length > 10) {
                         //allClones.add($ci);
                         //$lengths.add($ci.length);
                         //tree.add($ci);
                         /** @var CloneInfo */
-                        $previousCi = $map[$ci->token->line];
+                        $previousCi = $map[$ci->token->line] ?? null;
                         if ($previousCi == null) {
                             $map[$ci->token->line] =  $ci;
                         } else if ($ci->length > $previousCi->length) {
@@ -446,8 +446,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		// report if real clone
 		if ($iBest > 0 && $jBest > 0) {
 			$numReported += 1;
-			$this->reportClone($wordStart, $wordPosition + $iBest, $node, $jBest,
-					$nodeWordLength + $jBest);
+			$this->reportClone($wordStart, $wordPosition + $iBest, $node, $jBest, $nodeWordLength + $jBest);
 		}
 
 		return $numReported > 0;
@@ -534,8 +533,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			return;
 		}
 
-		//PairList<Integer, Integer> otherClones = new PairList<Integer, Integer>();
-        /** @var array<array{int, int}> */
+        /** @var PairList */
 		$otherClones = new PairList();
         $this->findRemainingClones(
             $otherClones,
@@ -578,7 +576,6 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		for ($clone = 0; $clone < $otherClones->size(); ++$clone) {
 			$start = $otherClones->getFirst($clone);
 			$otherLength = $otherClones->getSecond($clone);
-
 			//consumer.addClone($start, $otherLength);
 		}
 
