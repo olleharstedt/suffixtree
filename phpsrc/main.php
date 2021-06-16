@@ -51,5 +51,6 @@ if (is_file($file)) {
 } else {
     die('Only supports one file');
 }
+$word[] = new Sentinel();
 $tree = new ApproximateCloneDetectingSuffixTree($word);
 $tree->findClones(10, 10, 10);

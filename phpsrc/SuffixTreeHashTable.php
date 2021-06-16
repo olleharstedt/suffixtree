@@ -110,7 +110,7 @@ class SuffixTreeHashTable
         //echo $hash . ' ';
         /** @var int */
 		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
-        echo $pos . ' ';
+        //echo $keyChar->content . ' ';
         /** @var int */
 		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] !== null) {
@@ -121,7 +121,8 @@ class SuffixTreeHashTable
 			$pos = ($pos + $secondary) % $this->tableSize;
             //echo $pos . ' ';
 		}
-        //echo $pos . ' ';
+        echo $keyChar->content . ' ';
+        echo $pos . ' ';
 		return $pos;
 	}
 

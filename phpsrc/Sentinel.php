@@ -12,7 +12,7 @@ class Sentinel implements JavaObjectInterface
     private $hash;
 
     public function __construct() {
-        $this->hash = (int) rand(0, 2147483647);
+        $this->hash = (int) rand(0, PHP_INT_MAX);
     }
 
     public function hashCode(): int {

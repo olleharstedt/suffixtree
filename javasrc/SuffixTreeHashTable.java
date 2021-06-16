@@ -89,9 +89,7 @@ import java.util.Arrays;
 	private int hashFind(int keyNode, Object keyChar) {
 		++_numFind;
 		int hash = keyChar.hashCode();
-        //System.out.print(hash + " ");
 		int pos = posMod(primaryHash(keyNode, hash));
-        System.out.println(pos);
 		int secondary = secondaryHash(keyNode, hash);
 		while (keyChars[pos] != null) {
 			if (keyNodes[pos] == keyNode && keyChar.equals(keyChars[pos])) {
@@ -101,7 +99,8 @@ import java.util.Arrays;
 			pos = (pos + secondary) % tableSize;
             //System.out.print(pos + " ");
 		}
-        //System.out.print(pos + " ");
+        System.out.print(((PhpToken) keyChar).content + " ");
+        System.out.print(pos + " ");
 		return pos;
 	}
 
@@ -111,9 +110,11 @@ import java.util.Arrays;
 	 */
 	public int get(int keyNode, Object keyChar) {
 		int pos = hashFind(keyNode, keyChar);
-        System.out.println(keyChar);
-        System.out.println(pos);
-        //System.exit(0);
+        //System.out.println(keyChar);
+        //if (pos == 11428) {
+            //System.exit(123);
+        //}
+        //System.out.println(keyChars[11428]);
 
 		if (keyChars[pos] == null) {
 			return -1;
@@ -134,10 +135,10 @@ import java.util.Arrays;
 
 	/** Returns the primary hash value for a (node, character) key pair. */
 	private int primaryHash(int keyNode, int keyCharHash) {
-        System.out.println("keyNode = " + keyNode);
-        System.out.println("keyCharHash = " + keyCharHash);
+        //System.out.println("keyNode = " + keyNode);
+        //System.out.println("keyCharHash = " + keyCharHash);
 		int res = keyCharHash ^ (13 * keyNode);
-        System.out.println("res = " + res);
+        //System.out.println("res = " + res);
         return res;
 	}
 

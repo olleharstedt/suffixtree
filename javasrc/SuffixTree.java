@@ -253,7 +253,7 @@ public class SuffixTree {
 			if (refWordEnd > refWordBegin) {
 				next = nextNode.get(currentNode, word.get(refWordBegin));
                 if (next == -1) {
-                    System.exit(123);
+                    System.exit(12);
                 }
 			} else {
 				break;
