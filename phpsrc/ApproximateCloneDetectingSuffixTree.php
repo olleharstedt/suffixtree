@@ -295,42 +295,45 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             0
         );
         // TODO: Filter overlapping clones.
-        /*
-        while(itr.hasNext()) {
-        //for (int i = 0; i < keys.size(); i++) {
+        //while(itr.hasNext()) {
+        for ($i = 0; $i < count($values); $i++) {
             //Map.Entry entry = (Map.Entry) itr.next();  
             //CloneInfo $ci = (CloneInfo) entry.getValue();
-            //CloneInfo $ci = (CloneInfo) $map.get(keys.get(i));
-            CloneInfo $ci = (CloneInfo) itr.next();
+            //CloneInfo $ci = (CloneInfo) $map.get(keys.get($i));
+            /** @var CloneInfo */
+            $ci = $values[$i];
             try {
-                PhpToken lastToken = (PhpToken) $this->word.get($ci.position + $ci.length);
-                int lines = lastToken.line - $ci.token.line;
-                System.out.printf(
+                /** @var PhpToken */
+                $lastToken = $this->word[$ci->position + $ci->length];
+                $lines = $lastToken->line - $ci->token->line;
+                printf(
                     "  - %s:%d-%d (%d lines)\n",
-                    $ci.token.file,
-                    $ci.token.line,
-                    $ci.token.line + lines - 1,
-                    lines
+                    $ci->token->file,
+                    $ci->token->line,
+                    $ci->token->line + $lines - 1,
+                    $lines
                 );
             } catch(IndexOutOfBoundsException $e) {
-                System.out.printf("index out of bounds, $ci.position = %d, $ci.length = %d", $ci.position, $ci.length);
+                printf("index out of bounds, ci.position = %d, ci.length = %d", $ci->position, $ci->length);
             }
-            List<Integer> others = $ci->otherClones->extractFirstList();
-            for (int j = 0; j < others.size(); j++) {
-                int otherStart = others.get(j);
-                PhpToken t = (PhpToken) $this->word.get(otherStart);
-                PhpToken lastToken = (PhpToken) $this->word.get($ci.position + $ci.length);
-                int lines = lastToken.line - $ci.token.line;
-                System.out.printf(
+            /** @var int[] */
+            $others = $ci->otherClones->extractFirstList();
+            for ($j = 0; $j < count($others); $j++) {
+                $otherStart = $others[$j];
+                /** @var PhpToken */
+                $t = $this->word[$otherStart];
+                /** @var PhpToken */
+                $lastToken = $this->word[$ci->position + $ci->length];
+                $lines = $lastToken->line - $ci->token->line;
+                printf(
                         "    %s:%d-%d\n",
-                        t.file,
-                        t.line,
-                        t.line + lines - 1
+                        $t->file,
+                        $t->line,
+                        $t->line + $lines - 1
                 );
             }
-            System.out.println("");
+            print("\n");
         }
-         */
 	}
 
 	/**
