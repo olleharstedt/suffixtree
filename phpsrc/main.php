@@ -53,4 +53,4 @@ if (is_file($file)) {
 }
 $word[] = new Sentinel();
 $tree = new ApproximateCloneDetectingSuffixTree($word);
-$tree->findClones(10, 10, 10);
+$tree->findClones(10, 5, 10);
