@@ -315,7 +315,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             } catch(IndexOutOfBoundsException $e) {
                 System.out.printf("index out of bounds, $ci.position = %d, $ci.length = %d", $ci.position, $ci.length);
             }
-            List<Integer> others = $ci.otherClones.extractFirstList();
+            List<Integer> others = $ci->otherClones->extractFirstList();
             for (int j = 0; j < others.size(); j++) {
                 int otherStart = others.get(j);
                 PhpToken t = (PhpToken) $this->word.get(otherStart);
@@ -536,7 +536,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 
 		//PairList<Integer, Integer> otherClones = new PairList<Integer, Integer>();
         /** @var array<array{int, int}> */
-		$otherClones = [];
+		$otherClones = new PairList();
         $this->findRemainingClones(
             $otherClones,
             $nodeWordLength,
@@ -545,7 +545,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             $wordBegin
         );
 
-		$occurrences = 1 + count($otherClones);
+		$occurrences = 1 + $otherClones->size();
 
 		// check whether we may start from here
         /** @var PhpToken */
@@ -575,7 +575,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
         //PhpToken t = (PhpToken) $this->word.get($wordBegin);
         //System.out.println("line = " + t.line + ", $length = " + $length);
 
-		for ($clone = 0; $clone < count($otherClones); ++$clone) {
+		for ($clone = 0; $clone < $otherClones->size(); ++$clone) {
 			$start = $otherClones->getFirst($clone);
 			$otherLength = $otherClones->getSecond($clone);
 
@@ -591,21 +591,22 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		for ($i = $wordBegin; $i < $wordEnd; $i += $this->INDEX_SPREAD) {
 			$this->cloneInfos[$i][] = new CloneInfo($length - ($i - $wordBegin), $wordBegin, $occurrences, $t, $otherClones);
 		}
-        //PhpToken t = (PhpToken) $this->word.get($wordBegin);
-        //System.out.print("line = " + t.line + ", $length = " + $length + "; ");
-		for ($clone = 0; $clone < count($otherClones); ++$clone) {
+        /** @var PhpToken */
+        $t = $this->word[$wordBegin];
+        //System.out.print("line = " + $t.line + ", $length = " + $length + "; ");
+		for ($clone = 0; $clone < $otherClones->size(); ++$clone) {
 			$start = $otherClones->getFirst($clone);
 			$otherLength = $otherClones->getSecond($clone);
             //PhpToken s = (PhpToken) $this->word.get($start);
-            //System.out.print("$start t.line = " + s.line + ", $otherlength =  " + $otherLength + " ");
+            //System.out.print("$start $t.line = " + s.line + ", $otherlength =  " + $otherLength + " ");
             for ($j = 0; $j < $otherLength; $j++) {
                 /** @var PhpToken */
                 $r = $this->word[$j + $start];
                 //System.out.print($r.content + " " );
             }
 			for ($i = 0; $i < $otherLength; $i += $this->INDEX_SPREAD) {
-				//$this->cloneInfos.add($start + $i, new CloneInfo($otherLength - $i, $wordBegin, occurrences, t, $otherClones));
-				$this->cloneInfos[$start + $i][] = new CloneInfo($otherLength - $i, $wordBegin, occurrences, t, $otherClones);
+				//$this->cloneInfos.add($start + $i, new CloneInfo($otherLength - $i, $wordBegin, occurrences, $t, $otherClones));
+				$this->cloneInfos[$start + $i][] = new CloneInfo($otherLength - $i, $wordBegin, $occurrences, $t, $otherClones);
 			}
 		}
         //System.out.println("");
@@ -645,7 +646,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
      * @return void
 	 */
     private function findRemainingClones(
-        array &$clonePositions,
+        PairList $clonePositions,
         int $nodeWordLength,
         int $currentNode,
         int $distance,
@@ -660,7 +661,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 		if ($this->nodeChildFirst[$currentNode] < 0) {
 			$start = count($this->word) - $distance - $nodeWordLength;
 			if ($start != $wordStart) {
-				$clonePositions[] = [$start, $nodeWordLength];
+				$clonePositions->add($start, $nodeWordLength);
 			}
 		}
 	}

@@ -68,7 +68,7 @@ class PairList
 
     /** Add the given pair to the list.
         * @return void */
-    public function add(object $first, object $second): void
+    public function add($first, $second): void
     {
 		//$this->ensureSpace($this->size + 1);
 		$this->firstElements[$this->size] = $first;
@@ -236,7 +236,7 @@ class PairList
 		return $prime * $hash + crc32(serialize($this->secondElements));
 	}
 
-    public function equals(object $obj): bool
+    public function equals(PairList $obj): bool
     {
         // TODO: Works weird in PHP
 		if ($this === $obj) {

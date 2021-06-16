@@ -36,12 +36,14 @@ class CloneInfo
     /** @var PhpToken */
     public $token;
 
-    /** Related clones
-     * @var array<array{int, int}> */
+    /**
+     * Related clones
+     * @var PairList
+     */
     public $otherClones;
 
     /** Constructor. */
-    public function __construct(int $length, int $position, int $occurrences, PhpToken $token, array $otherClones)
+    public function __construct(int $length, int $position, int $occurrences, PhpToken $token, PairList $otherClones)
     {
         $this->length = $length;
         $this->position = $position;
@@ -59,7 +61,7 @@ class CloneInfo
      * @return boolean
      */
     public function dominates(CloneInfo $ci, int $later) {
-        return $this->length - $later >= $ci->length && $occurrences >= $ci->occurrences;
+        return $this->length - $later >= $ci->length && $this->occurrences >= $ci->occurrences;
     }
 }
 

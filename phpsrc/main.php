@@ -7,6 +7,7 @@
 
 require_once "JavaObjectInterface.php";
 require_once "JavaObject.php";
+require_once "PairList.php";
 require_once "PhpToken.php";
 require_once "Sentinel.php";
 require_once "SuffixTreeHashTable.php";
