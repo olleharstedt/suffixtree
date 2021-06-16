@@ -99,8 +99,9 @@ import java.util.Arrays;
 			pos = (pos + secondary) % tableSize;
             //System.out.print(pos + " ");
 		}
-        System.out.print(((PhpToken) keyChar).content + " ");
-        System.out.print(pos + " ");
+        //System.out.print(((PhpToken) keyChar).content + " ");
+        //System.out.print(pos + " ");
+        //System.out.print(tableSize + " ");
 		return pos;
 	}
 

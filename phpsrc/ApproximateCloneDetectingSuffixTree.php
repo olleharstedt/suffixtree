@@ -397,10 +397,9 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 
 		while ($wordPosition + $iBest < count($this->word)
 				&& $jBest < $currentNodeWordLength
-				&& $this->word.get($wordPosition + $iBest) != $this->word
-						.get($this->nodeWordBegin[$node] + $jBest)
-				&& $this->word.get($wordPosition + $iBest).equals(
-						$this->word.get($this->nodeWordBegin[$node] + $jBest))) {
+				&& $this->word[$wordPosition + $iBest] != $this->word[$this->nodeWordBegin[$node] + $jBest]
+				&& $this->word[$wordPosition + $iBest]->equals(
+						$this->word[$this->nodeWordBegin[$node] + $jBest])) {
 			++$iBest;
 			++$jBest;
 		}
@@ -494,9 +493,9 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 
 			// usual matrix completion for edit distance
 			for ($k = 1; $k < $currentLength; ++$k) {
-				$best = Math.min(
+				$best = min(
 						$best,
-						fillEDBuffer($k, $currentLength, $wordPosition,
+						$this->fillEDBuffer($k, $currentLength, $wordPosition,
 								$this->nodeWordBegin[$node]));
 			}
 			for ($k = 1; $k < $currentLength; ++$k) {

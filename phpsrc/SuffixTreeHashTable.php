@@ -119,10 +119,10 @@ class SuffixTreeHashTable
 			}
 			++$this->_numColl;
 			$pos = ($pos + $secondary) % $this->tableSize;
-            //echo $pos . ' ';
 		}
-        echo $keyChar->content . ' ';
-        echo $pos . ' ';
+        //echo $keyChar->content . ' ';
+        //echo $pos . ' ';
+        //echo $this->tableSize . ' ';
 		return $pos;
 	}
 

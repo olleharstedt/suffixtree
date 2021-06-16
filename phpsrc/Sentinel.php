@@ -20,7 +20,8 @@ class Sentinel implements JavaObjectInterface
     }
 
     public function equals(object $obj): bool {
-        return $obj->hashCode() === $this->hash;
+        //return $obj->hashCode() === $this->hash;
+        return $obj instanceof Sentinel;
     }
 
     public function toString(): string {

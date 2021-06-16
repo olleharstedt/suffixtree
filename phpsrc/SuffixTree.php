@@ -171,7 +171,7 @@ class SuffixTree
 
 		for ($i = 0; $i < $size; ++$i) {
 			$this->update($i);
-			//$this->canonize($i + 1);
+            $this->canonize($i + 1);
 		}
 	}
 
@@ -300,7 +300,7 @@ class SuffixTree
                     if ($next === -1) {
                         //echo $this->currentNode . ' ';
                         //echo $this->refWordBegin . ' ';
-                        throw new Exception("Abort");
+                        //throw new Exception("Abort");
                     }
                 } else {
                     break;
