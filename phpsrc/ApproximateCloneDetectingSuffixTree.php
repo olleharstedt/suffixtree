@@ -24,17 +24,6 @@
  * @author $Author: hummelb $
  * @version $Revision: 43151 $
  * @ConQAT.Rating GREEN Hash: BB94CD690760BC239F04D32D5BCAC33E
- *
- * JARs needed:
- *   https://mvnrepository.com/artifact/org.json/json/20140107
- *
- * Compile with
- *   javac -cp .:json-20140107.jar ApproximateCloneDetectingSuffixTree.java
- *
- * Run with
- *   java -cp .:json-20140107.jar ApproximateCloneDetectingSuffixTree
- *
- * (-cp = class path)
  */
 class ApproximateCloneDetectingSuffixTree extends SuffixTree
 {
@@ -123,57 +112,11 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	}
 
     /**
-     * TODO: Add options:
+     * @todo Add options:
      *   --min-tokens
      *   --min-lines
      *   --edit-distance
-     * @todo move out
-     */
-    /*
-    public static void main(String[] args) throws ConQATException, IOException {
-        //String input = Files.readString(Paths.get("QuestionTheme.php"), StandardCharsets.US_ASCII);
-        //input.replaceAll("\\s+","");
-        //String input = "bla bla bla test bla bla bla bla bla mooooo something else";
-        //List<Character> word = SuffixTreeTest.stringToList(input);
-
-        List<PhpToken> word = new ArrayList<PhpToken>();
-
-        String filename = "tokens.json";
-        String content = new Scanner(new File(filename)).useDelimiter("\\Z").next();
-        JSONArray json = new JSONArray(content);
-        for(int n = 0; n < json.length(); n++)
-        {
-            JSONObject object = (JSONObject) json.get(n);
-            PhpToken t = new PhpToken(
-                (int) object.get("token_code"),
-                (String) object.get("token_name"),
-                (int) object.get("line"),
-                (String) object.get("file"),
-                (String) object.get("content")
-            );
-            word.add(t);
-        }
-        word.add(new Sentinel(0, "_", 0, "_", "_"));
-
-        //System.out.println("Word size = " + word.size());
-
-		ApproximateCloneDetectingSuffixTree stree = new ApproximateCloneDetectingSuffixTree(
-                word) {
-            @Override
-            protected boolean mayNotMatch(Object character) {
-                return character instanceof Sentinel;
-            }
-
-            @Override
-            protected void reportBufferShortage(int leafStart, int leafLength) {
-                System.out.println("Encountered buffer shortage: " + leafStart
-                        + " " + leafLength);
-            }
-        };
-        //List<List<String>> cloneClasses = stree.findClones(1, 1, 3);
-
-        stree.findClones(10, 10, 10);
-    }
+     * @todo Possibly add consumer from original code.
      */
 
 	/**
@@ -189,7 +132,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
     {
 		$this->minLength = $minLength;
 		$this->headEquality = $headEquality;
-		//$this->cloneInfos->clear();
+		$this->cloneInfos = [];
 
 		for ($i = 0; $i < count($this->word); ++$i) {
 			// Do quick start, as first character has to match anyway.
@@ -213,35 +156,13 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			}
 		}
 
-        /** @var int[] */
-        //$lengths = new ArrayList<Integer>();
-        //Map<Integer, CloneInfo> map = new HashMap<>();
-        /** @var array<int, CloneInfo> */
-        $map = [];
-        /*
-        Comparator<CloneInfo> comp = new Comparator<CloneInfo>() {
-            @Override
-            public int compare(CloneInfo c, CloneInfo d) {
-                //return d.token.line - c.token.line;
-                return d.length - c.length;
-            }
-        };
-         */
-        //TreeSet<CloneInfo> tree = new TreeSet<CloneInfo>(comp);
-
-        //List<CloneInfo> allClones = new ArrayList<CloneInfo>();
 		for ($index = 0; $index <= count($this->word); ++$index) {
-            /** @var CloneInfo[] */
-			//$existingClones = $this->cloneInfos.getCollection($index);
 			$existingClones = $this->cloneInfos[$index] ?? null;
 			if ($existingClones != null) {
                 foreach ($existingClones as $ci) {
                     // length = number of tokens
                     // TODO: min token length
-                    if ($ci->length > 70) {
-                        //allClones.add($ci);
-                        //$lengths.add($ci.length);
-                        //tree.add($ci);
+                    if ($ci->length > 25) {
                         /** @var CloneInfo */
                         $previousCi = $map[$ci->token->line] ?? null;
                         if ($previousCi == null) {
@@ -249,45 +170,21 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
                         } else if ($ci->length > $previousCi->length) {
                             $map[$ci->token->line] = $ci;
                         }
-                        //System.out.println("length = " + $ci.length + ", occurrences = " + $ci.occurrences);
-                        //System.out.println("line = " + $ci.token.line);
                         /** @var int[] */
                         $others = $ci->otherClones->extractFirstList();
                         for ($j = 0; $j < count($others); $j++) {
                             $otherStart = $others[$j];
                             /** @var PhpToken */
                             $t = $this->word[$otherStart];
-                            //System.out.println("\tother clone start = " + t.line);
                         }
                     }
 				}
 			}
 		}
 
-        //if (allClones == null) {
-        //} else {
-            //allClones.sort((CloneInfo a, CloneInfo b) -> a.length - b.length);
-            //allClones.sort((CloneInfo a, CloneInfo b) -> a.token.line - b.token.line);
-        //}
-
-        //Iterator<CloneInfo> itr2 = allClones.iterator();
-        //while (itr2.hasNext()) {
-            //CloneInfo $ci = itr2.next();
-            //System.out.println($ci.token.line);
-        //}
-
-        //Iterator<CloneInfo> itr2 = tree.iterator();
-        //while (itr2.hasNext()) {
-            //CloneInfo $ci = itr2.next();
-            //System.out.println($ci.length);
-        //}
-
         /** @var CloneInfo[] */
         $values = array_values($map);
-        //Collections.sort($values, (a, b) -> b.length - a.length);
         usort($values, function ($a, $b) { return $b->length - $a->length;});
-        //Set set = $map.entrySet();
-        //Iterator itr = $values.iterator();
         printf(
             "\nFound %d clones with %d duplicated lines in %d files:\n\n",
             count($values),
@@ -295,11 +192,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
             0
         );
         // TODO: Filter overlapping clones.
-        //while(itr.hasNext()) {
         for ($i = 0; $i < count($values); $i++) {
-            //Map.Entry entry = (Map.Entry) itr.next();  
-            //CloneInfo $ci = (CloneInfo) entry.getValue();
-            //CloneInfo $ci = (CloneInfo) $map.get(keys.get($i));
             /** @var CloneInfo */
             $ci = $values[$i];
             try {
@@ -566,49 +459,24 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 			}
 		}
 
-		// report clone
-		//consumer.startCloneClass($length);
-		//consumer.addClone($wordBegin, $length);
-		//for (int i = $wordBegin; i < $length; i++) {
-			//System.out.print($this->word.get(i) + " ");
-		//}
-        //PhpToken t = (PhpToken) $this->word.get($wordBegin);
-        //System.out.println("line = " + t.line + ", $length = " + $length);
-
-		for ($clone = 0; $clone < $otherClones->size(); ++$clone) {
-			$start = $otherClones->getFirst($clone);
-			$otherLength = $otherClones->getSecond($clone);
-			//consumer.addClone($start, $otherLength);
-		}
-
-		// is this clone actually relevant?
-		//if (!consumer.completeCloneClass()) {
-			//return;
-		//}
-
 		// add clone to $otherClones to avoid getting more duplicates
 		for ($i = $wordBegin; $i < $wordEnd; $i += $this->INDEX_SPREAD) {
 			$this->cloneInfos[$i][] = new CloneInfo($length - ($i - $wordBegin), $wordBegin, $occurrences, $t, $otherClones);
 		}
         /** @var PhpToken */
         $t = $this->word[$wordBegin];
-        //System.out.print("line = " + $t.line + ", $length = " + $length + "; ");
 		for ($clone = 0; $clone < $otherClones->size(); ++$clone) {
 			$start = $otherClones->getFirst($clone);
 			$otherLength = $otherClones->getSecond($clone);
-            //PhpToken s = (PhpToken) $this->word.get($start);
-            //System.out.print("$start $t.line = " + s.line + ", $otherlength =  " + $otherLength + " ");
             for ($j = 0; $j < $otherLength; $j++) {
                 /** @var PhpToken */
                 $r = $this->word[$j + $start];
-                //System.out.print($r.content + " " );
             }
 			for ($i = 0; $i < $otherLength; $i += $this->INDEX_SPREAD) {
 				//$this->cloneInfos.add($start + $i, new CloneInfo($otherLength - $i, $wordBegin, occurrences, $t, $otherClones));
 				$this->cloneInfos[$start + $i][] = new CloneInfo($otherLength - $i, $wordBegin, $occurrences, $t, $otherClones);
 			}
 		}
-        //System.out.println("");
 	}
 
 
@@ -669,7 +537,6 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	 * This should return true, if the provided character is not allowed to
 	 * match with anything else (e.g. is a sentinel).
 	 */
-	//protected abstract boolean mayNotMatch(Object character);
     protected function mayNotMatch(JavaObjectInterface $character)
     {
         return $character instanceof Sentinel;
@@ -682,119 +549,7 @@ class ApproximateCloneDetectingSuffixTree extends SuffixTree
 	 * {@link #MAX_LENGTH} and potentially minor parts of such a clone might be
 	 * lost.
 	 */
-	//@SuppressWarnings("unused")
-	//protected void reportBufferShortage(int leafStart, int leafLength) {
-		// empty base implementation
-	//}
     protected function reportBufferShortage(int $leafStart, int $leafLength) {
         echo "Encountered buffer shortage: " . $leafStart . " " . $leafLength . "\n";
     }
-
-    /*
-	protected class CloneConsumer implements ICloneReporter {
-
-		private final MultiplexingCloneClassesCollection results = new MultiplexingCloneClassesCollection();
-
-		public CloneConsumer() {
-			if (top == INFINITE) {
-				results.addCollection(new ArrayList<CloneClass>());
-			} else {
-				results.addCollection(boundedCollection(NORMALIZED_LENGTH));
-				results.addCollection(boundedCollection(CARDINALITY));
-				results.addCollection(boundedCollection(VOLUME));
-			}
-		}
-
-		private BoundedPriorityQueue<CloneClass> boundedCollection(
-				ECloneClassComparator dimension) {
-			return new BoundedPriorityQueue<CloneClass>(top, dimension);
-		}
-
-		protected CloneClass currentCloneClass;
-
-		@Override
-		public void startCloneClass(int normalizedLength) {
-			currentCloneClass = new CloneClass(normalizedLength,
-					idProvider.provideId());
-		}
-
-		@Override
-		public Clone addClone(int globalPosition, int length)
-				throws ConQATException {
-			// compute length of clone in lines
-			Unit firstUnit = units.get(globalPosition);
-			Unit lastUnit = units.get(globalPosition + length - 1);
-			List<Unit> cloneUnits = units.subList(globalPosition,
-					globalPosition + length);
-
-			ITextElement element = resolveElement(firstUnit
-					.getElementUniformPath());
-			int startUnitIndexInElement = firstUnit.getIndexInElement();
-			int endUnitIndexInElement = lastUnit.getIndexInElement();
-			int lengthInUnits = endUnitIndexInElement - startUnitIndexInElement
-					+ 1;
-			CCSMAssert.isTrue(lengthInUnits >= 0, "Negative length in units!");
-			String fingerprint = createFingerprint(globalPosition, length);
-
-			Clone clone = new Clone(idProvider.provideId(), currentCloneClass,
-					createCloneLocation(element,
-							firstUnit.getFilteredStartOffset(),
-							lastUnit.getFilteredEndOffset()),
-					startUnitIndexInElement, lengthInUnits, fingerprint);
-
-			if (storeUnits) {
-				CloneUtils.setUnits(clone, cloneUnits);
-			}
-
-			currentCloneClass.add(clone);
-
-			return clone;
-		}
-
-		// Creates the location for a clone.
-		private TextRegionLocation createCloneLocation(ITextElement element,
-				int filteredStartOffset, int filteredEndOffset)
-				throws ConQATException {
-			int rawStartOffset = element
-					.getUnfilteredOffset(filteredStartOffset);
-			int rawEndOffset = element.getUnfilteredOffset(filteredEndOffset);
-			int rawStartLine = element
-					.convertUnfilteredOffsetToLine(rawStartOffset);
-			int rawEndLine = element
-					.convertUnfilteredOffsetToLine(rawEndOffset);
-
-			return new TextRegionLocation(element.getLocation(),
-					element.getUniformPath(), rawStartOffset, rawEndOffset,
-					rawStartLine, rawEndLine);
-		}
-
-		protected ITextElement resolveElement(String elementUniformPath) {
-			return uniformPathToElement.get(elementUniformPath);
-		}
-
-		protected String createFingerprint(int globalPosition, int length) {
-			StringBuilder fingerprintBase = new StringBuilder();
-			for (int pos = globalPosition; pos < globalPosition + length; pos++) {
-				fingerprintBase.append(units.get(pos).getContent());
-			}
-			return Digester.createMD5Digest(fingerprintBase.toString());
-		}
-
-		@Override
-		public boolean completeCloneClass() throws ConQATException {
-			boolean constraintsSatisfied = constraints
-					.allSatisfied(currentCloneClass);
-
-			if (constraintsSatisfied) {
-				results.add(currentCloneClass);
-			}
-
-			return constraintsSatisfied;
-		}
-
-		public List<CloneClass> getCloneClasses() {
-			return results.getCloneClasses();
-		}
-	}
-    */
 }
