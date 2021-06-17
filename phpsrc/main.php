@@ -6,7 +6,6 @@
 //ini_set('display_errors', '1');
 
 require_once "JavaObjectInterface.php";
-require_once "JavaObject.php";
 require_once "PairList.php";
 require_once "PhpToken.php";
 require_once "Sentinel.php";

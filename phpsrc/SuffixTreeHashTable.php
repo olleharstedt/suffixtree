@@ -44,32 +44,46 @@ class SuffixTreeHashTable
 			1572869, 3145739, 6291469, 12582917, 25165843, 50331653, 100663319,
 			201326611, 402653189, 805306457, 1610612741 ];
 
-    /** The size of the hash table.
-        * @var int */
+    /**
+     * The size of the hash table.
+     * @var int
+     */
 	private $tableSize;
 
-    /** Storage space for the node part of the key
-        * @var int[] */
+    /**
+     * Storage space for the node part of the key
+     * @var int[]
+     */
 	private $keyNodes;
 
-    /** Storage space for the character part of the key.
-        * @var object[] */
+    /**
+     * Storage space for the character part of the key.
+     * @var object[]
+     */
 	private $keyChars;
 
-    /** Storage space for the result node.
-        * @var int[] */
+    /**
+     * Storage space for the result node.
+     * @var int[]
+     */
 	private $resultNodes;
 
-    /** Debug info: number of stored nodes.
-        * @var int */
+    /**
+     * Debug info: number of stored nodes.
+     * @var int 
+     */
 	private $_numStoredNodes = 0;
 
-    /** Debug info: number of calls to find so far.
-        * @var int */
+    /**
+     * Debug info: number of calls to find so far.
+     * @var int
+     */
 	private $_numFind = 0;
 
-    /** Debug info: number of collisions (i.e. wrong finds) during find so far.
-        * @var int */
+    /**
+     * Debug info: number of collisions (i.e. wrong finds) during find so far.
+     * @var int
+     */
 	private $_numColl = 0;
 
 	/**
@@ -106,11 +120,8 @@ class SuffixTreeHashTable
 		++$this->_numFind;
         /** @var int */
 		$hash = $keyChar->hashCode();
-        //echo $keyChar->content . ' ';
-        //echo $hash . ' ';
         /** @var int */
 		$pos = $this->posMod($this->primaryHash($keyNode, $hash));
-        //echo $keyChar->content . ' ';
         /** @var int */
 		$secondary = $this->secondaryHash($keyNode, $hash);
 		while ($this->keyChars[$pos] !== null) {
@@ -120,9 +131,6 @@ class SuffixTreeHashTable
 			++$this->_numColl;
 			$pos = ($pos + $secondary) % $this->tableSize;
 		}
-        //echo $keyChar->content . ' ';
-        //echo $pos . ' ';
-        //echo $this->tableSize . ' ';
 		return $pos;
 	}
 
@@ -141,8 +149,10 @@ class SuffixTreeHashTable
 		return $this->resultNodes[$pos];
 	}
 
-    /** Inserts the given result node for the (node, character) key pair.
-        * @return void */
+    /**
+     * Inserts the given result node for the (node, character) key pair.
+     * @return void
+     */
     public function put(int $keyNode, JavaObjectInterface $keyChar, int $resultNode)
     {
 		$pos = $this->hashFind($keyNode, $keyChar);
@@ -154,8 +164,10 @@ class SuffixTreeHashTable
 		$this->resultNodes[$pos] = $resultNode;
 	}
 
-    /** Returns the primary hash value for a (node, character) key pair.
-        * @return int */
+    /**
+     * Returns the primary hash value for a (node, character) key pair.
+     * @return int
+     */
     private function primaryHash(int $keyNode, int $keyCharHash)
     {
 		$res =  $keyCharHash ^ (13 * $keyNode);
@@ -164,7 +176,6 @@ class SuffixTreeHashTable
 
     /**
      * Returns the secondary hash value for a (node, character) key pair.
-     *
      * @return int
      */
     private function secondaryHash(int $keyNode, int $keyCharHash)
@@ -225,20 +236,4 @@ class SuffixTreeHashTable
 			}
 		}
 	}
-
-	/**
-	 * Prints some internal statistics, such as fill factor and collisions to
-	 * std err.
-	 */
-    /*
-	public void _printDebugInfo() {
-		System.err.println("STHashMap info: ");
-		System.err.println("  Table size: " + tableSize);
-		System.err.println("  Contained entries: " + $this->_numStoredNodes);
-		System.err.println("  Fill factor: "
-				+ ((double) $this->_numStoredNodes / tableSize));
-		System.err.println("  Number of finds: " + $this->_numFind);
-		System.err.println("  Number of collisions: " + $this->_numColl);
-	}
-     */
 }

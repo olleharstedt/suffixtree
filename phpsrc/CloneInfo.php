@@ -20,7 +20,6 @@
 /** Stores information on a clone. */
 class CloneInfo
 {
-
     /**
      * Length of the clone in tokens.
      * @var int
@@ -73,4 +72,3 @@ class CloneInfo
         return $this->length - $later >= $ci->length && $this->occurrences >= $ci->occurrences;
     }
 }
-

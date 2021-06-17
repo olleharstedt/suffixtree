@@ -26,20 +26,28 @@
  */
 class PairList
 {
-    /** Version used for serialization.
-        * @var int */
+    /**
+     * Version used for serialization.
+     * @var int
+     */
 	private $serialVersionUID = 1;
 
-    /** The current size.
-        * @var int */
+    /**
+     * The current size.
+     * @var int
+     */
 	private $size = 0;
 
-    /** The array used for storing the S.
-        * @var object[] */
+    /**
+     * The array used for storing the S.
+     * @var object[]
+     */
 	private $firstElements;
 
-    /** The array used for storing the T.
-     * @var object[] */
+    /**
+     * The array used for storing the T.
+     * @var object[] 
+     */
 	private $secondElements;
 
     public function __construct(int $initialCapacity = 16)
@@ -47,8 +55,6 @@ class PairList
 		if ($initialCapacity < 1) {
 			$initialCapacity = 1;
 		}
-		//$this->firstElements = new Object[$initialCapacity];
-		//$this->secondElements = new Object[$initialCapacity];
         $this->firstElements = array_fill(0, $initialCapacity, null);
         $this->secondElements = array_fill(0, $initialCapacity, null);
 	}
@@ -66,11 +72,12 @@ class PairList
 		return $this->size;
 	}
 
-    /** Add the given pair to the list.
-        * @return void */
+    /**
+     * Add the given pair to the list.
+     * @return void
+     */
     public function add($first, $second): void
     {
-		//$this->ensureSpace($this->size + 1);
 		$this->firstElements[$this->size] = $first;
 		$this->secondElements[$this->size] = $second;
 		++$this->size;
@@ -83,7 +90,6 @@ class PairList
 		// other == this
 		$otherSize = $other->size;
 
-		//$this->ensureSpace($this->size + $otherSize);
 		for ($i = 0; $i < $otherSize; ++$i) {
 			$this->firstElements[$this->size] = $other->firstElements[$i];
 			$this->secondElements[$this->size] = $other->secondElements[$i];
@@ -104,14 +110,6 @@ class PairList
 		while ($newSize < $space) {
 			$newSize *= 2;
 		}
-
-        // Not needed, since PHP array always has enough size.
-        /*
-		$this->firstElements = new Object[$newSize];
-		$this->secondElements = new Object[$newSize];
-		System.arraycopy($oldFirst, 0, $this->firstElements, 0, $this->size);
-		System.arraycopy($oldSecond, 0, $this->secondElements, 0, $this->size);
-         */
 	}
 
 	/** Returns the first element at given index. */
@@ -206,7 +204,6 @@ class PairList
 	/** Removes the last element of the list. */
     public function removeLast(): void
     {
-		//CCSMPre.isTrue(size > 0, "Size must be positive!");
 		$this->size -= 1;
 	}
 
@@ -238,7 +235,7 @@ class PairList
 
     public function equals(PairList $obj): bool
     {
-        // TODO: Works weird in PHP
+        // TODO: Doesn't work in PHP
 		if ($this === $obj) {
 			return true;
 		}

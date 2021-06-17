@@ -27,11 +27,15 @@ class PhpToken implements JavaObjectInterface
      */
     public function hashCode(): int
     {
+        return (int) crc32($this->content);
+
         //static $cashedHashCode = null;
         //if ($cashedHashCode !== null) {
             //return $cashedHashCode;
         //}
 
+        // Code below mimics 32-bit integer. Probably not needed.
+        /*
         $value = $this->content;
         $hashCode = 0;
         $offset= 0;
@@ -53,7 +57,7 @@ class PhpToken implements JavaObjectInterface
         }
         //$cashedHashCode = $hashCode;
         return $hashCode;
-        //return (int) crc32($this->content);
+         */
         //return $this->content->hashCode();
         //return $tokenCode;
     }

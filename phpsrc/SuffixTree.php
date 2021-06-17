@@ -290,18 +290,12 @@ class SuffixTree
             $this->currentNode,
             $this->word[$this->refWordBegin]
         );
-        //echo $next . ' ';
 		while ($this->nodeWordEnd[$next] - $this->nodeWordBegin[$next] <= $refWordEnd
 				- $this->refWordBegin) {
                 $this->refWordBegin += $this->nodeWordEnd[$next] - $this->nodeWordBegin[$next];
                 $this->currentNode = $next;
                 if ($refWordEnd > $this->refWordBegin) {
                     $next = $this->nextNode->get($this->currentNode, $this->word[$this->refWordBegin]);
-                    if ($next === -1) {
-                        //echo $this->currentNode . ' ';
-                        //echo $this->refWordBegin . ' ';
-                        //throw new Exception("Abort");
-                    }
                 } else {
                     break;
                 }
@@ -323,58 +317,6 @@ class SuffixTree
 			$this->nextNode->extractChildLists($this->nodeChildFirst, $this->nodeChildNext, $this->nodeChildNode);
 		}
 	}
-
-	/** Prints some internal numbers to std error. */
-    /*
-	protected void _dumpDebugInfos() {
-		System.err.println("Number of nodes created: " + $this->numNodes);
-		System.err.println("Hash table infos: ");
-		$this->nextNode->_printDebugInfo();
-	}
-     */
-
-	/**
-	 * Returns a GraphViz DOT string describing this suffix tree.
-	 * 
-	 * @param separationChar the character used for separating the charaters along a child
-	 *            link (for "normal" characters this might be an empty string,
-	 *            for integers it might be a comma).
-	 * @param includeSuffixLinks if true, suffix links will be included in the output.
-	 */
-    /*
-	protected String _dumpAsDOT(String separationChar,
-			boolean includeSuffixLinks) {
-		ensureChildLists();
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("digraph G {\n");
-		for (int i = 0; i < $this->numNodes; ++i) {
-			sb.append("  n" + i + ";\n");
-		}
-		for (int i = 0; i < $this->numNodes; ++i) {
-			for (int e = $this->nodeChildFirst[i]; e >= 0; e = $this->nodeChildNext[e]) {
-				sb.append("  n" + i + " -> n" + $this->nodeChildNode[e] + " [label=\"");
-				String sep = "";
-				for (int j = $this->nodeWordBegin[$this->nodeChildNode[e]]; j < $this->nodeWordEnd[$this->nodeChildNode[e]]; ++j) {
-					sb.append(sep);
-					sb.append($this->word[j]->toString());
-					sep = separationChar;
-				}
-				sb.append("\"];\n");
-			}
-		}
-		if (includeSuffixLinks) {
-			for (int i = 1; i < $this->numNodes; ++i) {
-				if ($this->nodeChildFirst[i] >= 0) {
-					sb.append("  n" + i + " -> n" + $this->suffixLink[i]
-							+ " [color=red,constraint=false];\n");
-				}
-			}
-		}
-		sb.append("}\n");
-		return sb.toString();
-	}
-     */
 
 	/**
 	 * Returns whether the given word is contained in the string given at

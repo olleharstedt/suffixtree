@@ -11,20 +11,24 @@ class Sentinel implements JavaObjectInterface
     /** The hash value used. */
     private $hash;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->hash = (int) rand(0, PHP_INT_MAX);
     }
 
-    public function hashCode(): int {
+    public function hashCode(): int
+    {
         return $this->hash;
     }
 
-    public function equals(object $obj): bool {
-        //return $obj->hashCode() === $this->hash;
+    public function equals(object $obj): bool
+    {
+        // Original code uses physical object equality, not present in PHP.
         return $obj instanceof Sentinel;
     }
 
-    public function toString(): string {
+    public function toString(): string
+    {
         return "$";
     }
 }
